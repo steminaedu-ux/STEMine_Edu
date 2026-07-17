@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Articles & Global Showcase | STEMina EDU</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    @font-face{font-family:'Hertical';src:url('assets/Hertical_Sans_Rough.otf') format('opentype');}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    :root{--blue:#1A3FCC;--blue-dark:#0F2799;--yellow:#FFD700;--cream:#F5F0E8;--gray:#6B7280;--ink:#0D1B5E;}
+    html{scroll-behavior:smooth;}
+    body{font-family:'Inter',sans-serif;color:var(--ink);background:var(--cream);overflow-x:hidden;}
+
+    nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:14px 56px;background:rgba(245,240,232,0.92);backdrop-filter:blur(16px);border-bottom:1px solid rgba(26,63,204,0.1);}
+    .nav-logo img{height:44px;}
+    .nav-links{display:flex;gap:28px;list-style:none;}
+    .nav-links a{text-decoration:none;font-size:14px;font-weight:600;color:var(--gray);transition:color 0.2s;}
+    .nav-links a:hover,.nav-links a.active{color:var(--blue);}
+    .nav-cta{background:var(--blue);color:white;padding:10px 24px;border-radius:999px;font-size:13px;font-weight:700;text-decoration:none;}
+    .nav-hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;}
+    .nav-hamburger span{width:24px;height:2px;background:var(--blue);border-radius:2px;}
+    .mobile-nav{display:none;position:fixed;inset:0;background:var(--cream);z-index:300;flex-direction:column;align-items:center;justify-content:center;gap:36px;}
+    .mobile-nav.open{display:flex;}
+    .mobile-nav a{font-family:'Hertical',sans-serif;font-size:36px;color:var(--blue);text-decoration:none;}
+    .mobile-close{position:absolute;top:24px;right:28px;font-size:28px;background:none;border:none;cursor:pointer;color:var(--blue);}
+
+    /* HEADER with watercolour bg */
+    .page-header{
+      padding:140px 56px 80px;
+      background:url('assets/bg-watercolor2.png') center/cover no-repeat;
+      position:relative;text-align:center;
+    }
+    .page-header::before{content:'';position:absolute;inset:0;background:rgba(200,220,248,0.45);}
+    .page-header-content{position:relative;z-index:2;}
+    .page-header h1{font-family:'Hertical',sans-serif;font-size:clamp(52px,8vw,88px);color:var(--blue-dark);margin-bottom:16px;line-height:1;}
+    .page-header p{font-size:18px;color:#3a4870;max-width:560px;margin:0 auto;line-height:1.75;}
+
+    /* SEARCH + FILTERS */
+    .controls{padding:40px 56px 0;max-width:1200px;margin:0 auto;}
+    .search-bar{display:flex;align-items:center;gap:12px;background:white;border:2px solid rgba(26,63,204,0.1);border-radius:14px;padding:14px 20px;margin-bottom:20px;transition:border-color 0.2s;box-shadow:0 2px 12px rgba(26,63,204,0.05);}
+    .search-bar:focus-within{border-color:var(--blue);}
+    .search-bar input{flex:1;border:none;background:transparent;font-size:16px;color:var(--ink);outline:none;font-family:inherit;}
+    .search-bar input::placeholder{color:var(--gray);}
+    .search-icon{color:var(--gray);font-size:18px;}
+    .filter-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px;}
+    .filter-label{font-size:11px;font-weight:800;letter-spacing:2px;color:var(--gray);text-transform:uppercase;align-self:center;}
+    .filter-btn{padding:8px 18px;border-radius:999px;border:2px solid rgba(26,63,204,0.15);background:transparent;color:var(--gray);font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s;}
+    .filter-btn:hover{border-color:var(--blue);color:var(--blue);}
+    .filter-btn.active{background:var(--blue);border-color:var(--blue);color:white;}
+    .results-count{font-size:13px;color:var(--gray);padding:10px 56px;max-width:1200px;margin:0 auto;}
+
+    /* ARTICLES GRID */
+    .articles-section{padding:20px 56px 80px;max-width:1200px;margin:0 auto;}
+    .articles-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:24px;}
+
+    .article-card{
+      background:white;border-radius:20px;overflow:hidden;
+      border:2px solid rgba(26,63,204,0.08);cursor:pointer;
+      transition:transform 0.3s cubic-bezier(.34,1.56,.64,1),box-shadow 0.3s,border-color 0.3s;
+    }
+    .article-card:hover{transform:translateY(-6px) scale(1.01);box-shadow:0 20px 48px rgba(26,63,204,0.13);border-color:var(--blue);}
+    .article-card.hidden{display:none;}
+    .card-thumb{height:160px;display:flex;align-items:center;justify-content:center;font-size:52px;position:relative;}
+    .card-format-badge{position:absolute;top:12px;right:12px;background:rgba(0,0,0,0.5);color:white;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:4px 10px;border-radius:999px;}
+    .card-body{padding:18px 20px 22px;}
+    .card-meta{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px;}
+    .card-country{font-size:12px;font-weight:700;color:var(--blue);}
+    .card-category-badge{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:3px 10px;border-radius:999px;background:rgba(26,63,204,0.07);color:var(--gray);}
+    .card-title{font-family:'Hertical',sans-serif;font-size:20px;margin-bottom:0;line-height:1.25;color:var(--ink);}
+
+    .no-results{text-align:center;padding:80px 20px;display:none;}
+    .no-results h3{font-family:'Hertical',sans-serif;font-size:32px;color:var(--blue);margin-bottom:12px;}
+    .no-results p{color:var(--gray);}
+
+    /* SCROLL REVEAL */
+    .sr{opacity:0;transform:translateY(32px);transition:opacity 0.7s ease,transform 0.7s ease;}
+    .sr.d1{transition-delay:0.1s;} .sr.d2{transition-delay:0.2s;} .sr.d3{transition-delay:0.3s;}
+    .sr.visible{opacity:1;transform:translateY(0);}
+
+    footer{background:#060e36;padding:40px 56px;text-align:center;font-size:14px;color:rgba(255,255,255,0.4);}
+    footer strong{color:white;}
+
+    @media(max-width:900px){
+      nav{padding:14px 20px;} .nav-links,.nav-cta{display:none;} .nav-hamburger{display:flex;}
+      .controls,.articles-section{padding-left:20px;padding-right:20px;}
+      .page-header{padding:120px 20px 60px;}
+    }
+  </style>
+</head>
+<body>
+
+<div class="mobile-nav" id="mobileNav">
+  <button class="mobile-close" onclick="closeMobileNav()">X</button>
+  <a href="index.html" onclick="closeMobileNav()">Home</a>
+  <a href="map.html" onclick="closeMobileNav()">STEM Map</a>
+  <a href="board.html" onclick="closeMobileNav()">Drawing Board</a>
+  <a href="articles.html" onclick="closeMobileNav()">Articles</a>
+  <a href="community.html" onclick="closeMobileNav()">Community</a>
+  <a href="apply.html" onclick="closeMobileNav()">How to Submit</a>
+</div>
+
+<nav>
+  <a href="index.html"><img src="assets/logo.png" alt="STEMina" style="height:44px;"/></a>
+  <ul class="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="map.html">STEM Map</a></li>
+    <li><a href="board.html">Drawing Board</a></li>
+    <li><a href="articles.html" class="active">Articles</a></li>
+    <li><a href="community.html">Community</a></li>
+    <li><a href="apply.html">How to Submit</a></li>
+  </ul>
+  <a href="apply.html#portal" class="nav-cta">Submit Your Work</a>
+  <div class="nav-hamburger" onclick="openMobileNav()"><span></span><span></span><span></span></div>
+</nav>
+
+<header class="page-header">
+  <div class="page-header-content sr">
+    <h1>Articles & Stories</h1>
+    <p>Cultural STEM knowledge from every corner of the world — submitted by students, elders, and experts.</p>
+  </div>
+</header>
+
+<div class="controls">
+  <div class="search-bar sr">
+    <span class="search-icon">&#128269;</span>
+    <input type="text" id="searchInput" placeholder="Search by title, country, topic..." aria-label="Search"/>
+  </div>
+  <div class="filter-row">
+    <span class="filter-label">Format:</span>
+    <button class="fmt-btn filter-btn active" data-format="all">All</button>
+    <button class="fmt-btn filter-btn" data-format="article">Article</button>
+    <button class="fmt-btn filter-btn" data-format="video">Video</button>
+    <button class="fmt-btn filter-btn" data-format="story">Story</button>
+    <button class="fmt-btn filter-btn" data-format="animation">Animation</button>
+    <button class="fmt-btn filter-btn" data-format="project">Project</button>
+    <button class="fmt-btn filter-btn" data-format="art">Art</button>
+  </div>
+  <div class="filter-row">
+    <span class="filter-label">Category:</span>
+    <button class="cat-btn filter-btn active" data-category="all">All</button>
+    <button class="cat-btn filter-btn" data-category="science-facts">Science Facts</button>
+    <button class="cat-btn filter-btn" data-category="traditional-methods">Traditional Methods</button>
+    <button class="cat-btn filter-btn" data-category="stories">Stories</button>
+    <button class="cat-btn filter-btn" data-category="projects">Projects</button>
+  </div>
+</div>
+<p class="results-count" id="resultsCount"></p>
+
+<div class="articles-section">
+  <div class="articles-grid" id="articlesGrid">
+    <div style="grid-column:1/-1;text-align:center;padding:60px;color:var(--gray);">Loading articles...</div>
+  </div>
+  <div class="no-results" id="noResults">
+    <h3>No results found</h3>
+    <p>Try a different search or filter — or be the first to submit on this topic!</p>
+  </div>
+</div>
+
+
+
+<footer><p><strong>STEMina EDU</strong> — Student-Led STEM Initiative &nbsp;|&nbsp; 2025 All rights reserved.</p></footer>
+
+<!-- Firebase -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getFirestore, collection, getDocs, query, orderBy }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const app = initializeApp({
+    apiKey:"AIzaSyBhco5CTT1HUWSGhImn2YiTx5oYM8-v_xM",
+    authDomain:"stemina-global-showcase.firebaseapp.com",
+    projectId:"stemina-global-showcase",
+    storageBucket:"stemina-global-showcase.firebasestorage.app",
+    messagingSenderId:"789773985772",
+    appId:"1:789773985772:web:bac19acc7f554a825602c9"
+  });
+  const db = getFirestore(app);
+
+  function openMobileNav(){document.getElementById('mobileNav').classList.add('open');}
+  function closeMobileNav(){document.getElementById('mobileNav').classList.remove('open');}
+  window.openMobileNav=openMobileNav; window.closeMobileNav=closeMobileNav;
+
+  // Same conversion article.html and board.html use — turns a Google Drive
+  // share link into a direct-image URL a plain <img> tag can render.
+  function toDirectImageUrl(url) {
+    if (!url) return url;
+    const driveMatch = url.match(/drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?id=)([a-zA-Z0-9_-]+)/);
+    if (driveMatch) return `https://lh3.googleusercontent.com/d/${driveMatch[1]}`;
+    return url;
+  }
+  // Cover image comes from the dedicated Cover Image field. Falls back to
+  // sniffing the old Media field for older articles saved before that field
+  // existed — only treating it as a cover if it's actually an image link
+  // (not a YouTube link, PDF, Drive doc, etc.).
+  function coverImageUrl(a) {
+    if (a.coverImage && a.coverImage.trim()) return toDirectImageUrl(a.coverImage.trim());
+    const url = (a.media || '').trim();
+    if (!url) return null;
+    if (/(?:youtube\.com\/watch\?v=|youtu\.be\/)/.test(url)) return null;
+    if (/docs\.google\.com\/(presentation|document)/.test(url)) return null;
+    if (/\.pdf(\?.*)?$/i.test(url)) return null;
+    if (/drive\.google\.com\/file/.test(url)) return toDirectImageUrl(url);
+    if (/\.(jpe?g|png|gif|webp|svg)(\?.*)?$/i.test(url)) return url;
+    return null;
+  }
+
+  const THUMB_COLORS = {
+    article:['#e8f0ff','#c8dcf8'],
+    video:['#d4edda','#a8d5b5'],
+    story:['#fef9c3','#fde68a'],
+    project:['#d0f0f0','#90d4d4'],
+    animation:['#f3e8ff','#c4b5fd'],
+    art:['#ffe8d6','#f5c9a0']
+  };
+
+  let allArticles = [];
+  let activeFormat = 'all';
+  let activeCat = 'all';
+  let searchQ = '';
+
+  // Load articles from Firebase (admin-submitted only)
+  async function loadArticles() {
+    try {
+      const q = query(collection(db,'articles'), orderBy('createdAt','desc'));
+      const snap = await getDocs(q);
+      const firebaseArticles = [];
+      snap.forEach(d => firebaseArticles.push({id:d.id, ...d.data()}));
+      allArticles = firebaseArticles;
+      renderGrid();
+    } catch(e) {
+      console.log('Firebase unavailable, no articles to show.');
+      allArticles = [];
+      renderGrid();
+    }
+  }
+
+  function renderGrid() {
+    const grid = document.getElementById('articlesGrid');
+    const noRes = document.getElementById('noResults');
+    const count = document.getElementById('resultsCount');
+    grid.innerHTML = '';
+    let visible = 0;
+    allArticles.forEach((a, i) => {
+      const matchFmt = activeFormat==='all' || a.format===activeFormat;
+      const matchCat = activeCat==='all' || a.category===activeCat;
+      const matchSearch = !searchQ ||
+        (a.title||'').toLowerCase().includes(searchQ) ||
+        (a.desc||'').toLowerCase().includes(searchQ) ||
+        (a.country||'').toLowerCase().includes(searchQ) ||
+        (a.author||'').toLowerCase().includes(searchQ);
+      if (!matchFmt || !matchCat || !matchSearch) return;
+      visible++;
+      const colors = THUMB_COLORS[a.format] || ['#e8f0ff','#c8dcf8'];
+      const cover = coverImageUrl(a);
+      const card = document.createElement('div');
+      card.className = 'article-card sr';
+      card.innerHTML = `
+        <div class="card-thumb" style="background:linear-gradient(135deg,${colors[0]},${colors[1]});">
+          ${cover ? `<img src="${cover}" alt="${a.title}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none';"/>` : ''}
+          <span class="card-format-badge">${a.format||'article'}</span>
+        </div>
+        <div class="card-body">
+          <div class="card-meta">
+            <span class="card-category-badge">${(a.category||'').replace('-',' ')}</span>
+            ${a.country ? `<span class="card-country">${a.country}</span>` : ''}
+          </div>
+          <div class="card-title">${a.title}</div>
+        </div>`;
+      card.addEventListener('click', () => { window.location.href = `article.html?id=${encodeURIComponent(a.id)}`; });
+      grid.appendChild(card);
+      setTimeout(()=>card.classList.add('visible'), i*40);
+    });
+    noRes.style.display = visible===0?'block':'none';
+    count.textContent = visible===allArticles.length
+      ? `Showing all ${visible} submissions`
+      : `Showing ${visible} of ${allArticles.length} submissions`;
+  }
+
+  // Filters — scoped strictly to filter buttons only
+  document.querySelectorAll('.fmt-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.fmt-btn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      activeFormat = btn.dataset.format;
+      renderGrid();
+    });
+  });
+  document.querySelectorAll('.cat-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.cat-btn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      activeCat = btn.dataset.category;
+      renderGrid();
+    });
+  });
+  document.getElementById('searchInput').addEventListener('input', e => {
+    searchQ = e.target.value.toLowerCase();
+    renderGrid();
+  });
+
+  // Scroll reveal
+  const obs = new IntersectionObserver(entries=>{
+    entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');});
+  },{threshold:0.08});
+  document.querySelectorAll('.sr').forEach(el=>obs.observe(el));
+
+  loadArticles();
+</script>
+</body>
+</html>

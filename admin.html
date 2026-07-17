@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>STEMina Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    @font-face { font-family: 'Hertical'; src: url('assets/Hertical_Sans_Rough.otf') format('opentype'); }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --blue:#1A3FCC; --blue-dark:#0F2799; --yellow:#FFD700; --cream:#F5F0E8; --gray:#6B7280; --ink:#0D1B5E; --green:#0F9E6E; --red:#DC2626; }
+    body { font-family: 'Inter', sans-serif; background: var(--cream); color: var(--ink); min-height: 100vh; }
+
+    /* LOGIN */
+    #loginScreen {
+      min-height: 100vh; display: flex; align-items: center; justify-content: center;
+      background: url('assets/bg-watercolor2.png') center/cover no-repeat;
+      position: relative;
+    }
+    #loginScreen::before { content:''; position:absolute; inset:0; background:rgba(245,240,232,0.6); }
+    .login-card {
+      position: relative; z-index: 2;
+      background: white; border-radius: 24px; padding: 48px 40px;
+      width: 100%; max-width: 420px;
+      box-shadow: 0 20px 60px rgba(26,63,204,0.15);
+    }
+    .login-logo { width: 160px; display: block; margin: 0 auto 28px; }
+    .login-card h1 { font-family:'Hertical',sans-serif; font-size: 32px; text-align:center; color:var(--blue-dark); margin-bottom: 8px; }
+    .login-card p { text-align:center; color:var(--gray); font-size:14px; margin-bottom:32px; }
+    .form-group { margin-bottom: 18px; }
+    .form-group label { display:block; font-size:12px; font-weight:700; letter-spacing:1px; color:var(--gray); text-transform:uppercase; margin-bottom:6px; }
+    .form-group input, .form-group select, .form-group textarea {
+      width:100%; padding:12px 16px; border:2px solid rgba(26,63,204,0.15);
+      border-radius:10px; font-size:14px; font-family:inherit; color:var(--ink);
+      background:white; outline:none; transition:border-color 0.2s;
+    }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color:var(--blue); }
+    .form-group textarea { resize:vertical; min-height:100px; }
+    .btn { width:100%; padding:14px; border:none; border-radius:10px; font-size:15px; font-weight:700; cursor:pointer; transition:transform 0.2s, box-shadow 0.2s; }
+    .btn-blue { background:var(--blue); color:white; box-shadow:0 4px 16px rgba(26,63,204,0.3); }
+    .btn-blue:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(26,63,204,0.4); }
+    .btn-green { background:var(--green); color:white; box-shadow:0 4px 16px rgba(15,158,110,0.3); }
+    .btn-green:hover { transform:translateY(-2px); }
+    .btn-red { background:var(--red); color:white; padding:8px 14px; border-radius:8px; border:none; font-size:12px; font-weight:700; cursor:pointer; }
+    .btn-edit { background:rgba(26,63,204,0.1); color:var(--blue); padding:8px 14px; border-radius:8px; border:none; font-size:12px; font-weight:700; cursor:pointer; }
+    .btn-edit:hover { background:rgba(26,63,204,0.18); }
+    .list-item-actions { display:flex; gap:6px; flex-shrink:0; }
+    .login-error { color:var(--red); font-size:13px; text-align:center; margin-top:12px; display:none; }
+
+    /* ADMIN PANEL */
+    #adminPanel { display:none; }
+    .admin-nav {
+      background:var(--blue-dark); padding:16px 40px;
+      display:flex; align-items:center; justify-content:space-between;
+      position:sticky; top:0; z-index:100;
+    }
+    .admin-nav-logo { font-family:'Hertical',sans-serif; font-size:22px; color:white; }
+    .admin-nav-logo span { color:var(--yellow); }
+    .admin-nav-right { display:flex; gap:12px; align-items:center; }
+    .admin-nav-right a { color:rgba(255,255,255,0.6); text-decoration:none; font-size:13px; font-weight:600; }
+    .admin-nav-right a:hover { color:white; }
+    .logout-btn { background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); color:white; padding:8px 18px; border-radius:999px; font-size:13px; font-weight:600; cursor:pointer; }
+    .logout-btn:hover { background:rgba(255,255,255,0.2); }
+    .admin-name { color:rgba(255,255,255,0.85); font-size:13px; font-weight:600; display:flex; align-items:center; gap:8px; }
+    .admin-name .edit-name-btn { background:none; border:none; color:rgba(255,255,255,0.55); font-size:11px; text-decoration:underline; cursor:pointer; padding:0; font-family:inherit; }
+    .admin-name .edit-name-btn:hover { color:rgba(255,255,255,0.9); }
+    .founder-badge { background:rgba(255,215,0,0.2); color:#FFD700; font-size:10px; font-weight:800; letter-spacing:1px; text-transform:uppercase; padding:2px 8px; border-radius:999px; }
+
+    .admin-body { max-width:1100px; margin:0 auto; padding:40px 24px; }
+    .admin-tabs { display:flex; gap:8px; margin-bottom:32px; border-bottom:2px solid rgba(26,63,204,0.1); padding-bottom:0; }
+    .tab-btn {
+      padding:12px 24px; border:none; background:transparent;
+      font-size:14px; font-weight:700; color:var(--gray); cursor:pointer;
+      border-bottom:3px solid transparent; margin-bottom:-2px; transition:all 0.2s;
+    }
+    .tab-btn.active { color:var(--blue); border-bottom-color:var(--blue); }
+    .tab-btn:hover { color:var(--blue); }
+
+    .tab-panel { display:none; }
+    .tab-panel.active { display:block; }
+
+    .panel-grid { display:grid; grid-template-columns:1fr 1fr; gap:32px; align-items:start; }
+    .add-form { background:white; border-radius:20px; padding:32px; box-shadow:0 4px 20px rgba(26,63,204,0.06); }
+    .add-form h2 { font-family:'Hertical',sans-serif; font-size:26px; color:var(--ink); margin-bottom:24px; }
+    .form-section-title {
+      font-size:11px; font-weight:800; letter-spacing:1.5px; text-transform:uppercase;
+      color:var(--blue); margin:28px 0 14px; padding-top:22px;
+      border-top:1px solid rgba(26,63,204,0.08);
+      display:flex; align-items:center; gap:8px;
+    }
+    .form-section-title:first-of-type { margin-top:0; padding-top:0; border-top:none; }
+    .form-section-title .count { background:rgba(26,63,204,0.08); color:var(--blue); width:18px; height:18px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-size:10px; }
+
+    /* ── IMAGE SLIDER BUILDER ── */
+    .image-slots-wrap { display: flex; flex-direction: column; gap: 10px; margin-top: 4px; }
+    .image-slot {
+      display: flex; gap: 10px; align-items: center;
+      background: rgba(26,63,204,0.04); border: 1px solid rgba(26,63,204,0.12);
+      border-radius: 10px; padding: 10px 14px;
+    }
+    .image-slot input { flex: 1; border: none; background: transparent; font-size: 13px; color: var(--ink); outline: none; font-family: inherit; }
+    .image-slot input::placeholder { color: #9ca3af; }
+    .image-slot-caption { width: 160px; flex-shrink: 0; border: none; background: transparent; font-size: 12px; color: var(--gray); outline: none; font-family: inherit; border-left: 1px solid rgba(26,63,204,0.1); padding-left: 10px; }
+    .image-slot-caption::placeholder { color: #c0c8e0; }
+    .image-slot-remove { width: 26px; height: 26px; border-radius: 50%; border: none; background: rgba(220,38,38,0.08); color: #dc2626; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .image-slot-remove:hover { background: rgba(220,38,38,0.18); }
+    .add-image-slot-btn { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; color: var(--blue); background: rgba(26,63,204,0.06); border: 1px dashed rgba(26,63,204,0.25); border-radius: 8px; padding: 8px 14px; cursor: pointer; margin-top: 4px; width: 100%; justify-content: center; transition: background 0.2s; }
+    .add-image-slot-btn:hover { background: rgba(26,63,204,0.1); }
+    .slot-hint { font-size: 11px; color: #9ca3af; margin-top: 4px; line-height: 1.5; }
+
+    .form-group label .optional-tag { font-weight:400; text-transform:none; letter-spacing:0; color:#9aa3b8; }
+    .form-hint { font-size:11px; color:var(--gray); margin-top:6px; }
+    .items-list { background:white; border-radius:20px; padding:32px; box-shadow:0 4px 20px rgba(26,63,204,0.06); }
+    .items-list h2 { font-family:'Hertical',sans-serif; font-size:26px; color:var(--ink); margin-bottom:20px; }
+    .search-box-wrap { position:relative; margin-bottom:18px; }
+    .search-box-wrap svg { position:absolute; left:14px; top:50%; transform:translateY(-50%); width:16px; height:16px; color:var(--gray); pointer-events:none; }
+    .search-box {
+      width:100%; padding:11px 16px 11px 40px; border:2px solid rgba(26,63,204,0.15);
+      border-radius:10px; font-size:14px; font-family:inherit; color:var(--ink);
+      background:white; outline:none; transition:border-color 0.2s;
+    }
+    .search-box:focus { border-color:var(--blue); }
+    .search-count { font-size:12px; color:var(--gray); margin-top:6px; }
+
+    .list-item {
+      border:1px solid rgba(26,63,204,0.1); border-radius:12px;
+      padding:14px 16px; margin-bottom:10px;
+      display:flex; justify-content:space-between; align-items:flex-start; gap:12px;
+    }
+    .list-item-info { flex:1; min-width:0; }
+    .list-item-title { font-weight:700; font-size:14px; color:var(--ink); margin-bottom:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .list-item-sub { font-size:12px; color:var(--gray); }
+    .list-empty { text-align:center; color:var(--gray); font-size:14px; padding:32px; }
+
+    .toast {
+      position:fixed; bottom:32px; right:32px; z-index:999;
+      background:var(--ink); color:white; padding:14px 22px; border-radius:12px;
+      font-size:14px; font-weight:600; box-shadow:0 8px 24px rgba(0,0,0,0.2);
+      transform:translateY(80px); opacity:0; transition:all 0.35s;
+    }
+    .toast.show { transform:translateY(0); opacity:1; }
+    .toast.success { background:var(--green); }
+    .toast.error { background:var(--red); }
+
+    .loading { text-align:center; padding:32px; color:var(--gray); font-size:14px; }
+    .badge { display:inline-block; padding:3px 10px; border-radius:999px; font-size:11px; font-weight:700; }
+    .badge-blue { background:rgba(26,63,204,0.1); color:var(--blue); }
+    .badge-green { background:rgba(15,158,110,0.1); color:var(--green); }
+
+    @media(max-width:768px) { .panel-grid { grid-template-columns:1fr; } .admin-body { padding:24px 16px; } }
+  </style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="login-card">
+    <img src="assets/logo.png" alt="STEMina" class="login-logo"/>
+    <h1>Admin Panel</h1>
+    <p>Sign in to manage your content</p>
+    <div class="form-group">
+      <label>Email</label>
+      <input type="email" id="loginEmail" placeholder="your@email.com"/>
+    </div>
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" id="loginPassword" placeholder="Password"/>
+    </div>
+    <button class="btn btn-blue" onclick="doLogin()">Sign In</button>
+    <p class="login-error" id="loginError">Incorrect email or password.</p>
+  </div>
+</div>
+
+<!-- ADMIN PANEL -->
+<div id="adminPanel">
+  <nav class="admin-nav">
+    <div class="admin-nav-logo">STEM<span>ina</span> Admin</div>
+    <div class="admin-nav-right">
+      <span class="admin-name" id="adminNameDisplay"></span>
+      <a href="index.html" target="_blank">View Site</a>
+      <button class="logout-btn" onclick="doLogout()">Sign Out</button>
+    </div>
+  </nav>
+
+  <div class="admin-body">
+    <div class="admin-tabs">
+      <button class="tab-btn active" onclick="switchTab('articles')">Articles</button>
+      <button class="tab-btn" onclick="switchTab('drawings')">Drawing Board</button>
+      <button class="tab-btn" onclick="switchTab('mapfacts')">Map Facts</button>
+      <button class="tab-btn" id="teamTabBtn" onclick="switchTab('team')" style="display:none;">Team</button>
+    </div>
+
+    <!-- ARTICLES TAB -->
+    <div class="tab-panel active" id="tab-articles">
+      <div class="panel-grid">
+        <div class="add-form">
+          <h2 id="a-form-title">Add New Article</h2>
+
+          <div class="form-section-title">Basic Info</div>
+          <div class="form-group"><label>Title</label><input type="text" id="a-title" placeholder="Article title"/></div>
+          <div class="form-group"><label>Author</label><input type="text" id="a-author" placeholder="Name, Age, Country"/></div>
+          <div class="form-group">
+            <label>Format</label>
+            <select id="a-format" onchange="handleFormatChange()">
+              <option value="article">Article</option>
+              <option value="video">Video</option>
+              <option value="story">Story</option>
+              <option value="animation">Animation</option>
+              <option value="project">Project</option>
+              <option value="art">Art</option>
+              <option value="other">Other (custom)</option>
+            </select>
+          </div>
+          <div class="form-group" id="a-format-custom-group" style="display:none;">
+            <label>Custom Format Name</label>
+            <input type="text" id="a-format-custom" placeholder="e.g. Podcast, Infographic, Poem..."/>
+          </div>
+          <div class="form-group">
+            <label>Category</label>
+            <select id="a-category">
+              <option value="science-facts">Science Facts</option>
+              <option value="traditional-methods">Traditional Methods</option>
+              <option value="stories">Stories</option>
+              <option value="projects">Projects</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Country <span class="optional-tag">(optional)</span></label><input type="text" id="a-country" placeholder="e.g. Japan"/></div>
+
+          <div class="form-section-title">Content &amp; Criteria</div>
+          <div class="form-group"><label>Short Description</label><textarea id="a-desc" placeholder="Brief summary shown on the card..."></textarea></div>
+          <div class="form-group"><label id="a-body-label">Full Article Body</label><textarea id="a-body" style="min-height:160px;" placeholder="Full article content shown when opened..."></textarea></div>
+          <div class="form-group" id="a-methods-group" style="display:none;"><label>What problem does your project address? <span class="optional-tag">(optional)</span></label><textarea id="a-methods" placeholder="Describe the problem or gap your project tackles..."></textarea></div>
+          <div class="form-group"><label>What impact has your project made? <span class="optional-tag">(optional)</span></label><textarea id="a-stem" placeholder="What impact has it made, or what do you hope it will make?"></textarea></div>
+          <div class="form-group"><label>What inspired you to create this? <span class="optional-tag">(optional)</span></label><textarea id="a-culture" placeholder="What motivated or inspired you to start this project?"></textarea></div>
+          <div class="form-group"><label>Sources <span class="optional-tag">(optional)</span></label><textarea id="a-sources" placeholder="References, links, or sources used..."></textarea></div>
+
+          <div class="form-section-title">Media</div>
+          <div class="form-group"><label id="a-media-label">Video/Media URL <span class="optional-tag">(optional)</span></label><input type="text" id="a-media" placeholder="https://youtube.com/..."/></div>
+
+          <div class="form-group" id="a-cover-group">
+            <label>Cover Image URL <span class="optional-tag">(optional)</span></label>
+            <input type="text" id="a-cover" placeholder="https://... direct image link — shows as the card thumbnail"/>
+            <p class="slot-hint">Use an image hosted on Google Drive, imgbb, or any direct image URL. This replaces the colour gradient on the article card.</p>
+          </div>
+
+          <div class="form-group" id="a-images-group">
+            <label>Project Image Slider <span class="optional-tag">(optional)</span></label>
+            <p class="slot-hint" style="margin-bottom:8px;">Add up to 6 images — visitors can flip through them with &lt; &gt; arrows inside the article. Each image can have a short caption.</p>
+            <div class="image-slots-wrap" id="imageSlots"></div>
+            <button type="button" class="add-image-slot-btn" onclick="addImageSlot()" id="addSlotBtn">+ Add Image</button>
+            <p class="slot-hint">Paste direct image links (Drive, imgbb, etc.). Caption is optional.</p>
+          </div>
+
+          <button class="btn btn-blue" id="a-submit-btn" onclick="saveArticle()" style="margin-top:8px;">Publish Article</button>
+          <button class="btn" id="a-cancel-edit-btn" onclick="cancelEditArticle()" style="display:none;margin-top:10px;background:transparent;color:var(--gray);border:2px solid rgba(107,114,128,0.25);">Cancel Edit</button>
+        </div>
+        <div class="items-list">
+          <h2>Published Articles</h2>
+          <div class="search-box-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" class="search-box" id="a-search" placeholder="Search by title, author, or country..." oninput="filterList('articlesList','a-search')"/>
+          </div>
+          <div id="articlesList"><div class="loading">Loading...</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DRAWINGS TAB -->
+    <div class="tab-panel" id="tab-drawings">
+      <div class="panel-grid">
+        <div class="add-form">
+          <h2 id="d-form-title">Add Drawing to Board</h2>
+
+          <div class="form-section-title">Basic Info</div>
+          <div class="form-group"><label>Drawing Title</label><input type="text" id="d-title" placeholder="e.g. My Solar System"/></div>
+          <div class="form-group"><label>Name</label><input type="text" id="d-name" placeholder="e.g. Maria Santos"/></div>
+          <div class="form-group"><label>Age, Country <span class="optional-tag">(optional)</span></label><input type="text" id="d-author" placeholder="e.g. Age 8, Philippines"/></div>
+          <div class="form-group"><label>STEM Topic</label><input type="text" id="d-topic" placeholder="e.g. Astronomy"/></div>
+          <div class="form-group">
+            <label>Week Label</label>
+            <input type="text" id="d-week" placeholder="e.g. This Week, Jan 20"/>
+          </div>
+
+          <div class="form-section-title">Media</div>
+          <div class="form-group">
+            <label>Image URL</label>
+            <input type="text" id="d-image" placeholder="https://... (direct image link)"/>
+            <p class="form-hint">Paste a Google Drive share link (Share &rarr; "Anyone with the link" &rarr; Copy link) or a direct image link from a host like <a href="https://imgbb.com" target="_blank" style="color:var(--blue);">imgbb.com</a>.</p>
+          </div>
+          <button class="btn btn-green" id="d-submit-btn" onclick="saveDrawing()" style="margin-top:8px;">Add to Board</button>
+          <button class="btn" id="d-cancel-edit-btn" onclick="cancelEditDrawing()" style="display:none;margin-top:10px;background:transparent;color:var(--gray);border:2px solid rgba(107,114,128,0.25);">Cancel Edit</button>
+        </div>
+        <div class="items-list">
+          <h2>Current Drawings</h2>
+          <div class="search-box-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" class="search-box" id="d-search" placeholder="Search by title, artist, or topic..." oninput="filterList('drawingsList','d-search')"/>
+          </div>
+          <div id="drawingsList"><div class="loading">Loading...</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAP FACTS TAB -->
+    <div class="tab-panel" id="tab-mapfacts">
+      <div class="panel-grid">
+        <div class="add-form">
+          <h2 id="m-form-title">Add Map Fact</h2>
+
+          <div class="form-section-title">Location</div>
+          <div class="form-group"><label>Country Name</label><input type="text" id="m-country" placeholder="e.g. India"/></div>
+          <div class="form-group"><label>Latitude</label><input type="number" id="m-lat" placeholder="e.g. 20.5" step="0.1"/></div>
+          <div class="form-group"><label>Longitude</label><input type="number" id="m-lng" placeholder="e.g. 78.9" step="0.1"/></div>
+          <p class="form-hint" style="margin:-10px 0 18px;">To find lat/lng: right-click any location on <a href="https://maps.google.com" target="_blank" style="color:var(--blue);">Google Maps</a> and click the coordinates shown.</p>
+
+          <div class="form-section-title">Content</div>
+          <div class="form-group">
+            <label>Type</label>
+            <select id="m-type">
+              <option value="Science Fact">Science Fact</option>
+              <option value="Traditional Method">Traditional Method</option>
+            </select>
+          </div>
+          <div class="form-group"><label>STEM Tag</label><input type="text" id="m-tag" placeholder="e.g. Mathematics"/></div>
+          <div class="form-group"><label>Fact / Description</label><textarea id="m-fact" placeholder="Write the science fact or traditional method..."></textarea></div>
+          <div class="form-group"><label>Contributor Name</label><input type="text" id="m-contributor" placeholder="e.g. STEMina Team"/></div>
+          <button class="btn btn-blue" id="m-submit-btn" onclick="saveMapFact()" style="margin-top:8px;">Add to Map</button>
+          <button class="btn" id="m-cancel-edit-btn" onclick="cancelEditMapFact()" style="display:none;margin-top:10px;background:transparent;color:var(--gray);border:2px solid rgba(107,114,128,0.25);">Cancel Edit</button>
+        </div>
+        <div class="items-list">
+          <h2>Map Facts</h2>
+          <div class="search-box-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" class="search-box" id="m-search" placeholder="Search by country, type, or tag..." oninput="filterList('mapfactsList','m-search')"/>
+          </div>
+          <div id="mapfactsList"><div class="loading">Loading...</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TEAM TAB (founders only) -->
+    <div class="tab-panel" id="tab-team">
+      <div class="panel-grid">
+        <div class="add-form">
+          <h2>Team &amp; Permissions</h2>
+          <p style="font-size:13px;color:var(--gray);line-height:1.7;">
+            New members set their own display name the first time they log in, then it locks —
+            only founders can rename anyone after that. Click <strong>Edit Name</strong> next to
+            any team member below to update it.
+          </p>
+        </div>
+        <div class="items-list">
+          <h2>Team Members</h2>
+          <div id="teamList"><div class="loading">Loading...</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- Firebase -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { getFirestore, collection, addDoc, getDocs, getDoc, setDoc, updateDoc, deleteDoc, doc, serverTimestamp, query, orderBy }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBhco5CTT1HUWSGhImn2YiTx5oYM8-v_xM",
+    authDomain: "stemina-global-showcase.firebaseapp.com",
+    projectId: "stemina-global-showcase",
+    storageBucket: "stemina-global-showcase.firebasestorage.app",
+    messagingSenderId: "789773985772",
+    appId: "1:789773985772:web:bac19acc7f554a825602c9"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  // ── AUTH & TEAM ──
+  let currentAdmin = null; // { id, name, email, role }
+
+  onAuthStateChanged(auth, async user => {
+    if (user) {
+      document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('adminPanel').style.display = 'block';
+      await loadCurrentAdmin(user);
+      renderAdminName();
+      updateTeamTabVisibility();
+      loadAll();
+    } else {
+      document.getElementById('loginScreen').style.display = 'flex';
+      document.getElementById('adminPanel').style.display = 'none';
+      currentAdmin = null;
+    }
+  });
+
+  async function loadCurrentAdmin(user) {
+    const ref = doc(db, 'admins', user.uid);
+    try {
+      const snap = await getDoc(ref);
+      if (snap.exists()) {
+        currentAdmin = { id: user.uid, ...snap.data() };
+      } else {
+        // First time this account has opened the admin panel — set a one-time name.
+        // Note: this always creates the record as role "member". Founders must be
+        // seeded manually in the Firebase console beforehand (see setup notes).
+        let name = window.prompt('What name should be shown for your edits/uploads? (e.g. "Sarah")');
+        if (!name || !name.trim()) name = user.email;
+        const data = { name: name.trim(), email: user.email, role: 'member', createdAt: serverTimestamp() };
+        await setDoc(ref, data);
+        currentAdmin = { id: user.uid, ...data };
+      }
+    } catch(e) {
+      currentAdmin = { id: user.uid, name: user.email, email: user.email, role: 'member' };
+    }
+  }
+
+  function renderAdminName() {
+    if (!currentAdmin) return;
+    const editBtn = currentAdmin.role === 'founder'
+      ? `<button class="edit-name-btn" onclick="editTeamMemberName('${currentAdmin.id}','${(currentAdmin.name||'').replace(/'/g,"\\'")}')">Edit</button>`
+      : '';
+    document.getElementById('adminNameDisplay').innerHTML =
+      `Signed in as ${currentAdmin.name} ${currentAdmin.role==='founder' ? '<span class="founder-badge">Founder</span>' : ''} ${editBtn}`;
+  }
+
+  function updateTeamTabVisibility() {
+    const btn = document.getElementById('teamTabBtn');
+    if (btn) btn.style.display = (currentAdmin && currentAdmin.role === 'founder') ? 'inline-block' : 'none';
+  }
+
+  // Returns the current admin's display name (falls back to email, then 'Unknown') — used for createdBy/updatedBy
+  function getAdminName() {
+    return currentAdmin?.name || currentAdmin?.email || 'Unknown';
+  }
+
+  // Founder-only: rename any admin (including self) — the Firestore rules are the real
+  // enforcement here; this client-side check just avoids showing the option to non-founders.
+  window.editTeamMemberName = async (uid, currentName) => {
+    if (!currentAdmin || currentAdmin.role !== 'founder') { toast('Only founders can edit names','error'); return; }
+    const name = window.prompt('Update this admin\'s display name:', currentName || '');
+    if (name && name.trim()) {
+      try {
+        await updateDoc(doc(db,'admins',uid), { name: name.trim() });
+        toast('Name updated!');
+        if (uid === currentAdmin.id) { currentAdmin.name = name.trim(); renderAdminName(); }
+        loadTeam();
+      } catch(e) { toast(e.message, 'error'); }
+    }
+  };
+
+  async function loadTeam() {
+    const el = document.getElementById('teamList');
+    if (!el) return;
+    el.innerHTML = '<div class="loading">Loading...</div>';
+    try {
+      const snap = await getDocs(collection(db,'admins'));
+      if (snap.empty) { el.innerHTML = '<div class="list-empty">No team members yet.</div>'; return; }
+      el.innerHTML = '';
+      snap.forEach(d => {
+        const data = d.data();
+        el.innerHTML += `
+          <div class="list-item">
+            <div class="list-item-info">
+              <div class="list-item-title">${data.name} ${data.role==='founder' ? '<span class="founder-badge">Founder</span>' : ''}</div>
+              <div class="list-item-sub">${data.email || ''}</div>
+            </div>
+            <div class="list-item-actions">
+              <button class="btn-edit" onclick="editTeamMemberName('${d.id}','${(data.name||'').replace(/'/g,"\\'")}')">Edit Name</button>
+            </div>
+          </div>`;
+      });
+    } catch(e) { el.innerHTML = `<div class="list-empty">Error: ${e.message}</div>`; }
+  }
+
+  window.doLogin = async () => {
+    const email = document.getElementById('loginEmail').value;
+    const pass = document.getElementById('loginPassword').value;
+    try {
+      await signInWithEmailAndPassword(auth, email, pass);
+    } catch(e) {
+      document.getElementById('loginError').style.display = 'block';
+    }
+  };
+  window.doLogout = () => signOut(auth);
+
+  // ── TOAST ──
+  function toast(msg, type='success') {
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.className = `toast show ${type}`;
+    setTimeout(() => t.className = 'toast', 2800);
+  }
+
+  // ── TABS ──
+  window.switchTab = (name) => {
+    document.querySelectorAll('.tab-btn').forEach((b,i) => {
+      b.classList.toggle('active', ['articles','drawings','mapfacts','team'][i] === name);
+    });
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById(`tab-${name}`).classList.add('active');
+    if (name === 'team') loadTeam();
+  };
+
+  // ── LOAD ALL ──
+  async function loadAll() {
+    loadArticles(); loadDrawings(); loadMapFacts();
+  }
+  // Expose to window so inline onclick="..." handlers (which run in the
+  // global scope, not the module scope) can find these functions.
+  window.loadArticles = () => loadArticles();
+  window.loadDrawings = () => loadDrawings();
+  window.loadMapFacts = () => loadMapFacts();
+
+  // ── SEARCH / FILTER ──
+  // Filters the rendered .list-item rows in a list container by whether
+  // their visible text matches the search box, so it's easy to find one
+  // item to edit without scrolling through everything.
+  window.filterList = function(listId, searchInputId) {
+    const q = (document.getElementById(searchInputId).value || '').trim().toLowerCase();
+    const container = document.getElementById(listId);
+    if (!container) return;
+    const items = Array.from(container.children).filter(el => el.classList.contains('list-item'));
+    let visibleCount = 0;
+    items.forEach(item => {
+      const match = !q || item.textContent.toLowerCase().includes(q);
+      item.style.display = match ? '' : 'none';
+      if (match) visibleCount++;
+    });
+
+    let emptyMsg = container.querySelector('.search-empty');
+    if (q && items.length > 0 && visibleCount === 0) {
+      if (!emptyMsg) {
+        emptyMsg = document.createElement('div');
+        emptyMsg.className = 'list-empty search-empty';
+        container.appendChild(emptyMsg);
+      }
+      emptyMsg.textContent = `No results for "${q}".`;
+      emptyMsg.style.display = '';
+    } else if (emptyMsg) {
+      emptyMsg.style.display = 'none';
+    }
+  };
+
+  // Re-applies whatever's currently typed in a search box after the list
+  // reloads (e.g. after adding, editing, or deleting an item), so the
+  // filter doesn't silently reset.
+  function reapplySearch(listId, searchInputId) {
+    const input = document.getElementById(searchInputId);
+    if (input && input.value.trim()) filterList(listId, searchInputId);
+  }
+
+  // ── DATE FORMATTING ──
+  function formatDate(ts) {
+    if (!ts) return '';
+    try {
+      const d = ts.toDate ? ts.toDate() : new Date(ts);
+      return d.toLocaleDateString(undefined, { year:'numeric', month:'short', day:'numeric' });
+    } catch(e) { return ''; }
+  }
+  function dateLine(data) {
+    const created = formatDate(data.createdAt);
+    const updated = formatDate(data.updatedAt);
+    const createdBy = data.createdBy ? ` by ${data.createdBy}` : '';
+    const updatedBy = data.updatedBy ? ` by ${data.updatedBy}` : '';
+    if (!created) return '';
+    if (updated && updated !== created) return `Added ${created}${createdBy} &middot; Edited ${updated}${updatedBy}`;
+    return `Added ${created}${createdBy}`;
+  }
+
+  // ── ARTICLES ──
+  const FORMAT_CONFIG = {
+    article:   { bodyLabel:'Full Article Body', bodyPlaceholder:'Full article content shown when opened...',
+                 mediaLabel:'Cover Image URL', mediaOptional:true, mediaPlaceholder:'https://... (optional cover image)' },
+    story:     { bodyLabel:'Full Story', bodyPlaceholder:'Full story text shown when opened...',
+                 mediaLabel:'Cover Image URL', mediaOptional:true, mediaPlaceholder:'https://... (optional cover image)' },
+    video:     { bodyLabel:'Video Notes / Transcript', bodyOptional:true, bodyPlaceholder:'Optional summary, transcript, or script...',
+                 mediaLabel:'Video URL', mediaOptional:false, mediaPlaceholder:'https://youtube.com/...' },
+    animation: { bodyLabel:'Animation Notes', bodyOptional:true, bodyPlaceholder:'Optional description of the animation...',
+                 mediaLabel:'Animation/Video URL', mediaOptional:false, mediaPlaceholder:'https://...' },
+    project:   { bodyLabel:'Project Description', bodyPlaceholder:'Full project write-up: goal, approach, results...',
+                 mediaLabel:'Demo/Media URL', mediaOptional:true, mediaPlaceholder:'https://... (optional)', showMethods:true },
+    art:       { bodyLabel:'Artist Statement', bodyOptional:true, bodyPlaceholder:'Optional note from the artist about the piece...',
+                 mediaLabel:'Artwork Image URL', mediaOptional:false, mediaPlaceholder:'https://... (direct image link)' },
+    other:     { bodyLabel:'Full Content', bodyPlaceholder:'Full content shown when opened...',
+                 mediaLabel:'Media URL', mediaOptional:true, mediaPlaceholder:'https://... (optional)' }
+  };
+
+  function applyFormatConfig(fmt) {
+    const cfg = FORMAT_CONFIG[fmt] || FORMAT_CONFIG.other;
+    document.getElementById('a-body-label').innerHTML =
+      cfg.bodyLabel + (cfg.bodyOptional ? ' <span class="optional-tag">(optional)</span>' : '');
+    document.getElementById('a-body').placeholder = cfg.bodyPlaceholder;
+    document.getElementById('a-media-label').innerHTML =
+      cfg.mediaLabel + (cfg.mediaOptional ? ' <span class="optional-tag">(optional)</span>' : '');
+    document.getElementById('a-media').placeholder = cfg.mediaPlaceholder;
+    document.getElementById('a-methods-group').style.display = cfg.showMethods ? 'block' : 'none';
+  }
+
+  window.toggleCustomFormat = () => {
+    const isOther = document.getElementById('a-format').value === 'other';
+    document.getElementById('a-format-custom-group').style.display = isOther ? 'block' : 'none';
+  };
+
+  window.handleFormatChange = () => {
+    toggleCustomFormat();
+    applyFormatConfig(document.getElementById('a-format').value);
+  };
+
+  // set initial state to match the default selected format
+  applyFormatConfig(document.getElementById('a-format').value);
+
+  let editingArticleId = null;
+  const articlesCache = {};
+
+  async function loadArticles() {
+    const el = document.getElementById('articlesList');
+    el.innerHTML = '<div class="loading">Loading...</div>';
+    try {
+      const q = query(collection(db,'articles'), orderBy('createdAt','desc'));
+      const snap = await getDocs(q);
+      if (snap.empty) { el.innerHTML = '<div class="list-empty">No articles yet.</div>'; return; }
+      el.innerHTML = '';
+      snap.forEach(d => {
+        const data = d.data();
+        articlesCache[d.id] = data;
+        el.innerHTML += `
+          <div class="list-item">
+            <div class="list-item-info">
+              <div class="list-item-title">${data.title}</div>
+              <div class="list-item-sub">${data.author} &middot; ${data.country} &middot;
+                <span class="badge badge-blue">${data.format}</span>
+              </div>
+              <div class="list-item-sub" style="margin-top:3px;">${dateLine(data)}</div>
+            </div>
+            <div class="list-item-actions">
+              <button class="btn-edit" onclick="editArticle('${d.id}')">Edit</button>
+              <button class="btn-red" onclick="deleteItem('articles','${d.id}',loadArticles)">Delete</button>
+            </div>
+          </div>`;
+      });
+    } catch(e) { el.innerHTML = `<div class="list-empty">Error: ${e.message}</div>`; }
+    reapplySearch('articlesList', 'a-search');
+  }
+
+  const KNOWN_FORMATS = ['article','video','story','animation','project','art'];
+
+  function resetArticleForm() {
+    ['a-title','a-author','a-country','a-desc','a-body','a-methods','a-stem','a-culture','a-sources','a-media','a-cover','a-format-custom']
+      .forEach(id => { const el = document.getElementById(id); if(el) el.value=''; });
+    document.getElementById('imageSlots').innerHTML = '';
+    updateAddSlotBtn();
+    document.getElementById('a-format').value = 'article';
+    handleFormatChange();
+    editingArticleId = null;
+    document.getElementById('a-form-title').textContent = 'Add New Article';
+    document.getElementById('a-submit-btn').textContent = 'Publish Article';
+    document.getElementById('a-cancel-edit-btn').style.display = 'none';
+  }
+
+  window.editArticle = (id) => {
+    const data = articlesCache[id];
+    if (!data) { toast('Could not load that article','error'); return; }
+
+    document.getElementById('a-title').value = data.title || '';
+    document.getElementById('a-author').value = data.author || '';
+
+    if (KNOWN_FORMATS.includes(data.format)) {
+      document.getElementById('a-format').value = data.format;
+      document.getElementById('a-format-custom').value = '';
+    } else {
+      document.getElementById('a-format').value = 'other';
+      document.getElementById('a-format-custom').value = data.format || '';
+    }
+    handleFormatChange();
+
+    document.getElementById('a-category').value = data.category || 'science-facts';
+    document.getElementById('a-country').value = data.country || '';
+    document.getElementById('a-desc').value = data.desc || '';
+    document.getElementById('a-body').value = data.body || '';
+    document.getElementById('a-methods').value = data.methodsUsed || '';
+    document.getElementById('a-stem').value = data.stemConnection || '';
+    document.getElementById('a-culture').value = data.culturalSignificance || '';
+    document.getElementById('a-sources').value = data.sources || '';
+    document.getElementById('a-media').value = data.media || '';
+    document.getElementById('a-cover').value = data.coverImage || '';
+    // Rebuild image slots
+    document.getElementById('imageSlots').innerHTML = '';
+    const imgs = Array.isArray(data.images) ? data.images : [];
+    imgs.forEach(img => addImageSlot(img.url, img.caption));
+    updateAddSlotBtn();
+
+    editingArticleId = id;
+    document.getElementById('a-form-title').textContent = 'Edit Article';
+    document.getElementById('a-submit-btn').textContent = 'Save Changes';
+    document.getElementById('a-cancel-edit-btn').style.display = 'block';
+    document.querySelector('#tab-articles .add-form').scrollIntoView({ behavior:'smooth', block:'start' });
+  };
+
+  window.cancelEditArticle = () => resetArticleForm();
+
+  window.saveArticle = async () => {
+    const title = document.getElementById('a-title').value.trim();
+    const author = document.getElementById('a-author').value.trim();
+    if (!title || !author) { toast('Title and Author are required','error'); return; }
+
+    const formatSelect = document.getElementById('a-format').value;
+    const format = formatSelect === 'other'
+      ? (document.getElementById('a-format-custom').value.trim() || 'Other')
+      : formatSelect;
+
+    const payload = {
+      title, author, format,
+      category: document.getElementById('a-category').value,
+      country: document.getElementById('a-country').value.trim(),
+      desc: document.getElementById('a-desc').value.trim(),
+      body: document.getElementById('a-body').value.trim(),
+      methodsUsed: document.getElementById('a-methods').value.trim(),
+      stemConnection: document.getElementById('a-stem').value.trim(),
+      culturalSignificance: document.getElementById('a-culture').value.trim(),
+      sources: document.getElementById('a-sources').value.trim(),
+      media: document.getElementById('a-media').value.trim(),
+      coverImage: document.getElementById('a-cover').value.trim(),
+      images: getImageSlots()
+    };
+
+    try {
+      if (editingArticleId) {
+        await updateDoc(doc(db,'articles',editingArticleId), { ...payload, updatedAt: serverTimestamp(), updatedBy: getAdminName() });
+        toast('Article updated!');
+      } else {
+        await addDoc(collection(db,'articles'), { ...payload, createdAt: serverTimestamp(), updatedAt: serverTimestamp(), createdBy: getAdminName(), updatedBy: getAdminName() });
+        toast('Article published!');
+      }
+      resetArticleForm();
+      loadArticles();
+    } catch(e) { toast(e.message,'error'); }
+  };
+
+  // ── IMAGE SLIDER BUILDER ──
+  const MAX_IMAGES = 6;
+
+  window.addImageSlot = function(url='', caption='') {
+    const slots = document.getElementById('imageSlots');
+    if (slots.children.length >= MAX_IMAGES) return;
+    const div = document.createElement('div');
+    div.className = 'image-slot';
+    div.innerHTML = `
+      <input type="text" placeholder="https://... (image URL)" value="${url}"/>
+      <input type="text" class="image-slot-caption" placeholder="Caption (optional)" value="${caption}"/>
+      <button type="button" class="image-slot-remove" onclick="this.parentElement.remove();updateAddSlotBtn();" title="Remove">&times;</button>`;
+    slots.appendChild(div);
+    updateAddSlotBtn();
+  };
+
+  window.updateAddSlotBtn = function() {
+    const slots = document.getElementById('imageSlots');
+    const btn = document.getElementById('addSlotBtn');
+    if (!slots || !btn) return;
+    const count = slots.children.length;
+    btn.style.display = count >= MAX_IMAGES ? 'none' : '';
+    btn.textContent = count === 0 ? '+ Add Image' : `+ Add Another Image (${count}/${MAX_IMAGES})`;
+  };
+
+  window.getImageSlots = function() {
+    const slots = document.getElementById('imageSlots');
+    if (!slots) return [];
+    return Array.from(slots.children).map(div => {
+      const inputs = div.querySelectorAll('input');
+      return { url: inputs[0].value.trim(), caption: inputs[1].value.trim() };
+    }).filter(img => img.url);
+  };
+
+  // ── DRAWINGS ──
+  let editingDrawingId = null;
+  const drawingsCache = {};
+
+  async function loadDrawings() {
+    const el = document.getElementById('drawingsList');
+    el.innerHTML = '<div class="loading">Loading...</div>';
+    try {
+      const q = query(collection(db,'drawings'), orderBy('createdAt','desc'));
+      const snap = await getDocs(q);
+      if (snap.empty) { el.innerHTML = '<div class="list-empty">No drawings yet.</div>'; return; }
+      el.innerHTML = '';
+      snap.forEach(d => {
+        const data = d.data();
+        drawingsCache[d.id] = data;
+        el.innerHTML += `
+          <div class="list-item">
+            <div class="list-item-info">
+              <div class="list-item-title">${data.title}</div>
+              <div class="list-item-sub">${data.name || 'Unnamed'}${data.author ? ' &middot; ' + data.author : ''} &middot; ${data.topic} &middot; <span class="badge badge-green">${data.week}</span></div>
+              <div class="list-item-sub" style="margin-top:3px;">${dateLine(data)}</div>
+            </div>
+            <div class="list-item-actions">
+              <button class="btn-edit" onclick="editDrawing('${d.id}')">Edit</button>
+              <button class="btn-red" onclick="deleteItem('drawings','${d.id}',loadDrawings)">Delete</button>
+            </div>
+          </div>`;
+      });
+    } catch(e) { el.innerHTML = `<div class="list-empty">Error: ${e.message}</div>`; }
+    reapplySearch('drawingsList', 'd-search');
+  }
+
+  function resetDrawingForm() {
+    ['d-title','d-name','d-author','d-topic','d-week','d-image'].forEach(id => document.getElementById(id).value='');
+    editingDrawingId = null;
+    document.getElementById('d-form-title').textContent = 'Add Drawing to Board';
+    document.getElementById('d-submit-btn').textContent = 'Add to Board';
+    document.getElementById('d-cancel-edit-btn').style.display = 'none';
+  }
+
+  window.editDrawing = (id) => {
+    const data = drawingsCache[id];
+    if (!data) { toast('Could not load that drawing','error'); return; }
+    document.getElementById('d-title').value = data.title || '';
+    document.getElementById('d-name').value = data.name || '';
+    document.getElementById('d-author').value = data.author || '';
+    document.getElementById('d-topic').value = data.topic || '';
+    document.getElementById('d-week').value = data.week || '';
+    document.getElementById('d-image').value = data.image || '';
+
+    editingDrawingId = id;
+    document.getElementById('d-form-title').textContent = 'Edit Drawing';
+    document.getElementById('d-submit-btn').textContent = 'Save Changes';
+    document.getElementById('d-cancel-edit-btn').style.display = 'block';
+    document.querySelector('#tab-drawings .add-form').scrollIntoView({ behavior:'smooth', block:'start' });
+  };
+
+  window.cancelEditDrawing = () => resetDrawingForm();
+
+  window.saveDrawing = async () => {
+    const title = document.getElementById('d-title').value.trim();
+    if (!title) { toast('Title is required','error'); return; }
+
+    const payload = {
+      title,
+      name: document.getElementById('d-name').value.trim(),
+      author: document.getElementById('d-author').value.trim(),
+      topic: document.getElementById('d-topic').value.trim(),
+      week: document.getElementById('d-week').value.trim(),
+      image: document.getElementById('d-image').value.trim()
+    };
+
+    try {
+      if (editingDrawingId) {
+        await updateDoc(doc(db,'drawings',editingDrawingId), { ...payload, updatedAt: serverTimestamp(), updatedBy: getAdminName() });
+        toast('Drawing updated!');
+      } else {
+        await addDoc(collection(db,'drawings'), { ...payload, createdAt: serverTimestamp(), updatedAt: serverTimestamp(), createdBy: getAdminName(), updatedBy: getAdminName() });
+        toast('Drawing added to board!');
+      }
+      resetDrawingForm();
+      loadDrawings();
+    } catch(e) { toast(e.message,'error'); }
+  };
+
+  // ── MAP FACTS ──
+  let editingMapFactId = null;
+  const mapfactsCache = {};
+
+  async function loadMapFacts() {
+    const el = document.getElementById('mapfactsList');
+    el.innerHTML = '<div class="loading">Loading...</div>';
+    try {
+      const q = query(collection(db,'mapfacts'), orderBy('createdAt','desc'));
+      const snap = await getDocs(q);
+      if (snap.empty) { el.innerHTML = '<div class="list-empty">No map facts yet.</div>'; return; }
+      el.innerHTML = '';
+      snap.forEach(d => {
+        const data = d.data();
+        mapfactsCache[d.id] = data;
+        el.innerHTML += `
+          <div class="list-item">
+            <div class="list-item-info">
+              <div class="list-item-title">${data.country}</div>
+              <div class="list-item-sub"><span class="badge badge-blue">${data.type}</span> &middot; ${data.tag}</div>
+              <div class="list-item-sub" style="margin-top:3px;">${dateLine(data)}</div>
+            </div>
+            <div class="list-item-actions">
+              <button class="btn-edit" onclick="editMapFact('${d.id}')">Edit</button>
+              <button class="btn-red" onclick="deleteItem('mapfacts','${d.id}',loadMapFacts)">Delete</button>
+            </div>
+          </div>`;
+      });
+    } catch(e) { el.innerHTML = `<div class="list-empty">Error: ${e.message}</div>`; }
+    reapplySearch('mapfactsList', 'm-search');
+  }
+
+  function resetMapFactForm() {
+    ['m-country','m-lat','m-lng','m-tag','m-fact','m-contributor'].forEach(id => document.getElementById(id).value='');
+    document.getElementById('m-type').value = 'Science Fact';
+    editingMapFactId = null;
+    document.getElementById('m-form-title').textContent = 'Add Map Fact';
+    document.getElementById('m-submit-btn').textContent = 'Add to Map';
+    document.getElementById('m-cancel-edit-btn').style.display = 'none';
+  }
+
+  window.editMapFact = (id) => {
+    const data = mapfactsCache[id];
+    if (!data) { toast('Could not load that fact','error'); return; }
+    document.getElementById('m-country').value = data.country || '';
+    document.getElementById('m-lat').value = (data.lat ?? '');
+    document.getElementById('m-lng').value = (data.lng ?? '');
+    document.getElementById('m-type').value = data.type || 'Science Fact';
+    document.getElementById('m-tag').value = data.tag || '';
+    document.getElementById('m-fact').value = data.fact || '';
+    document.getElementById('m-contributor').value = data.contributor || '';
+
+    editingMapFactId = id;
+    document.getElementById('m-form-title').textContent = 'Edit Map Fact';
+    document.getElementById('m-submit-btn').textContent = 'Save Changes';
+    document.getElementById('m-cancel-edit-btn').style.display = 'block';
+    document.querySelector('#tab-mapfacts .add-form').scrollIntoView({ behavior:'smooth', block:'start' });
+  };
+
+  window.cancelEditMapFact = () => resetMapFactForm();
+
+  window.saveMapFact = async () => {
+    const country = document.getElementById('m-country').value.trim();
+    const fact = document.getElementById('m-fact').value.trim();
+    if (!country || !fact) { toast('Country and Fact are required','error'); return; }
+
+    const payload = {
+      country,
+      lat: parseFloat(document.getElementById('m-lat').value),
+      lng: parseFloat(document.getElementById('m-lng').value),
+      type: document.getElementById('m-type').value,
+      tag: document.getElementById('m-tag').value.trim(),
+      fact,
+      contributor: document.getElementById('m-contributor').value.trim() || 'STEMina Team'
+    };
+
+    try {
+      if (editingMapFactId) {
+        await updateDoc(doc(db,'mapfacts',editingMapFactId), { ...payload, updatedAt: serverTimestamp(), updatedBy: getAdminName() });
+        toast('Fact updated!');
+      } else {
+        await addDoc(collection(db,'mapfacts'), { ...payload, createdAt: serverTimestamp(), updatedAt: serverTimestamp(), createdBy: getAdminName(), updatedBy: getAdminName() });
+        toast('Fact added to map!');
+      }
+      resetMapFactForm();
+      loadMapFacts();
+    } catch(e) { toast(e.message,'error'); }
+  };
+
+  // ── DELETE ──
+  window.deleteItem = async (colName, id, reloadFn) => {
+    if (!confirm('Delete this item?')) return;
+    try {
+      await deleteDoc(doc(db, colName, id));
+      toast('Deleted');
+      reloadFn();
+    } catch(e) { toast(e.message,'error'); }
+  };
+</script>
+</body>
+</html>

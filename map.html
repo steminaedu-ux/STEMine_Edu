@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Global STEM Map | STEMina EDU</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <style>
+    @font-face { font-family: 'Hertical'; src: url('assets/Hertical_Sans_Rough.otf') format('opentype'); }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --blue:#1A3FCC; --blue-dark:#0F2799; --yellow:#FFD700; --cream:#F5F0E8; --gray:#6B7280; --ink:#0D1B5E; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', sans-serif; color: var(--ink); background: var(--cream); overflow-x: hidden; }
+
+    nav { position: fixed; top: 0; left: 0; right: 0; z-index: 500; display: flex; align-items: center; justify-content: space-between; padding: 14px 56px; background: rgba(245,240,232,0.92); backdrop-filter: blur(16px); border-bottom: 1px solid rgba(26,63,204,0.1); }
+    .nav-logo img { height: 44px; }
+    .nav-links { display: flex; gap: 32px; list-style: none; }
+    .nav-links a { text-decoration: none; font-size: 14px; font-weight: 600; color: var(--gray); transition: color 0.2s; }
+    .nav-links a:hover, .nav-links a.active { color: var(--blue); }
+    .nav-cta { background: var(--blue); color: white; padding: 10px 24px; border-radius: 999px; font-size: 13px; font-weight: 700; text-decoration: none; }
+    .nav-hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; }
+    .nav-hamburger span { width: 24px; height: 2px; background: var(--blue); border-radius: 2px; }
+    .mobile-nav { display: none; position: fixed; inset: 0; background: var(--cream); z-index: 600; flex-direction: column; align-items: center; justify-content: center; gap: 36px; }
+    .mobile-nav.open { display: flex; }
+    .mobile-nav a { font-family: 'Hertical', sans-serif; font-size: 36px; color: var(--blue); text-decoration: none; }
+    .mobile-close { position: absolute; top: 24px; right: 28px; font-size: 28px; background: none; border: none; cursor: pointer; color: var(--blue); }
+
+    /* PAGE HEADER */
+    .map-header {
+      padding: 120px 56px 60px;
+      background: url('assets/bg-watercolor2.png') center/cover no-repeat;
+      position: relative; text-align: center;
+    }
+    .map-header::before { content: ''; position: absolute; inset: 0; background: rgba(200,220,248,0.5); }
+    .map-header-content { position: relative; z-index: 2; }
+    .map-header h1 { font-family: 'Hertical', sans-serif; font-size: clamp(48px,8vw,88px); color: var(--blue-dark); margin-bottom: 16px; line-height: 1; }
+    .map-header p { font-size: 18px; color: #3a4870; max-width: 560px; margin: 0 auto; line-height: 1.75; }
+
+    /* FILTER TABS */
+    .map-controls {
+      background: white; border-bottom: 2px solid rgba(26,63,204,0.07);
+      padding: 20px 56px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+      position: sticky; top: 72px; z-index: 100;
+    }
+    .filter-label { font-size: 12px; font-weight: 700; letter-spacing: 2px; color: var(--gray); text-transform: uppercase; margin-right: 4px; }
+    .filter-btn { padding: 8px 20px; border-radius: 999px; border: 2px solid rgba(26,63,204,0.15); background: transparent; color: var(--gray); font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+    .filter-btn:hover { border-color: var(--blue); color: var(--blue); }
+    .filter-btn.active { background: var(--blue); border-color: var(--blue); color: white; }
+
+    /* MAP CONTAINER */
+    .map-wrapper {
+      height: 60vh; min-height: 440px;
+      position: relative;
+      border-bottom: 3px solid rgba(26,63,204,0.1);
+    }
+    #stemMap { height: 100%; width: 100%; }
+
+    /* Leaflet popup custom style */
+    .leaflet-popup-content-wrapper {
+      border-radius: 16px !important;
+      box-shadow: 0 12px 40px rgba(26,63,204,0.2) !important;
+      border: 2px solid rgba(26,63,204,0.12) !important;
+      padding: 0 !important;
+      overflow: hidden;
+    }
+    .leaflet-popup-content { margin: 0 !important; width: 280px !important; }
+    .leaflet-popup-tip-container { display: none; }
+    .popup-inner { padding: 20px 22px 22px; }
+    .popup-category { font-size: 10px; font-weight: 800; letter-spacing: 2px; color: var(--blue); text-transform: uppercase; margin-bottom: 6px; }
+    .popup-country { font-family: 'Hertical', sans-serif; font-size: 22px; color: var(--ink); margin-bottom: 8px; }
+    .popup-fact { font-size: 14px; color: #4a5270; line-height: 1.65; }
+    .popup-tag { display: inline-block; background: rgba(26,63,204,0.07); color: var(--blue); font-size: 11px; font-weight: 600; padding: 4px 12px; border-radius: 999px; margin-top: 12px; }
+    .popup-header { height: 6px; background: var(--blue); }
+
+    /* FACT CARDS BELOW MAP */
+    .facts-section { padding: 80px 56px; background: var(--cream); }
+    .facts-inner { max-width: 1140px; margin: 0 auto; }
+    .facts-header { margin-bottom: 48px; }
+    .facts-header h2 { font-family: 'Hertical', sans-serif; font-size: clamp(32px,4vw,52px); color: var(--ink); margin-bottom: 8px; }
+    .facts-header p { font-size: 16px; color: var(--gray); }
+
+    .facts-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px,1fr)); gap: 20px; }
+    .fact-card {
+      background: white; border-radius: 18px; padding: 26px 24px;
+      border: 2px solid rgba(26,63,204,0.07);
+      transition: transform 0.3s cubic-bezier(.34,1.56,.64,1), box-shadow 0.3s, border-color 0.3s;
+      cursor: pointer;
+    }
+    .fact-card:hover { transform: translateY(-6px); box-shadow: 0 16px 40px rgba(26,63,204,0.12); border-color: var(--blue); }
+    .fact-card.hidden { display: none; }
+    .fact-card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; gap: 8px; }
+    .fact-type { font-size: 10px; font-weight: 800; letter-spacing: 2px; color: var(--blue); text-transform: uppercase; background: rgba(26,63,204,0.07); padding: 4px 10px; border-radius: 999px; white-space: nowrap; }
+    .fact-country { font-family: 'Hertical', sans-serif; font-size: 20px; color: var(--ink); }
+    .fact-text { font-size: 14px; color: var(--gray); line-height: 1.65; }
+
+    .sr { opacity: 0; transform: translateY(32px); transition: opacity 0.7s ease, transform 0.7s ease; }
+    .sr.visible { opacity: 1; transform: translateY(0); }
+
+    footer { background: #060e36; padding: 40px 56px; text-align: center; font-size: 14px; color: rgba(255,255,255,0.4); }
+    footer strong { color: white; }
+
+    /* SUBMISSION GUIDE — floating button + popup */
+    .guide-fab {
+      position: fixed; bottom: 28px; right: 28px; z-index: 150;
+      display: flex; align-items: center; gap: 8px;
+      background: var(--blue); color: white; border: none; border-radius: 999px;
+      padding: 14px 22px; font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 700;
+      cursor: pointer; box-shadow: 0 10px 30px rgba(26,63,204,0.4);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .guide-fab:hover { transform: translateY(-3px); box-shadow: 0 16px 38px rgba(26,63,204,0.5); }
+    .guide-fab svg { width: 18px; height: 18px; flex-shrink: 0; }
+
+    .guide-overlay {
+      display: none; position: fixed; inset: 0; z-index: 500;
+      background: rgba(13,27,94,0.55); backdrop-filter: blur(4px);
+      align-items: center; justify-content: center; padding: 20px;
+    }
+    .guide-overlay.open { display: flex; }
+    .guide-modal {
+      background: url('assets/bg-watercolor2.png') center/cover no-repeat, white;
+      border-radius: 24px; max-width: 460px; width: 100%; max-height: 88vh; overflow-y: auto;
+      padding: 40px 36px; position: relative; text-align: center;
+      box-shadow: 0 30px 70px rgba(13,27,94,0.35);
+    }
+    .guide-modal::before { content:''; position:absolute; inset:0; border-radius:24px; background: rgba(255,255,255,0.93); }
+    .guide-modal > * { position: relative; z-index: 2; }
+    .guide-close { position: absolute; top: 16px; right: 16px; z-index: 3; background: none; border: none; font-size: 20px; color: var(--gray); cursor: pointer; }
+    .guide-modal .stemina-wordmark { display: inline-block; font-size: 10px; font-weight: 800; letter-spacing: 3px; color: var(--blue); text-transform: uppercase; padding: 6px 16px; border: 2px solid rgba(26,63,204,0.2); border-radius: 999px; margin-bottom: 18px; }
+    .guide-modal h3 { font-family: 'Hertical', sans-serif; font-size: 26px; color: var(--ink); margin-bottom: 10px; line-height: 1.15; }
+    .guide-modal > p.guide-intro { font-size: 14px; color: var(--gray); line-height: 1.7; margin-bottom: 22px; }
+    .guide-section-label { text-align: left; font-size: 11px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; color: var(--blue); margin: 18px 0 10px; }
+    .guide-steps { list-style: none; text-align: left; display: flex; flex-direction: column; gap: 12px; margin-bottom: 4px; }
+    .guide-steps li { display: flex; gap: 12px; align-items: flex-start; font-size: 13.5px; color: #3a4870; line-height: 1.55; }
+    .guide-steps li span.num { font-family: 'Hertical', sans-serif; font-size: 20px; color: rgba(26,63,204,0.25); min-width: 22px; line-height: 1.2; }
+    .guide-criteria { list-style: none; text-align: left; display: flex; flex-direction: column; gap: 8px; margin-bottom: 8px; }
+    .guide-criteria li { display: flex; gap: 10px; align-items: flex-start; font-size: 13.5px; color: #3a4870; line-height: 1.55; }
+    .guide-criteria li::before { content: '✓'; color: var(--blue); font-weight: 800; flex-shrink: 0; }
+    .guide-actions { display: flex; flex-direction: column; gap: 10px; margin-top: 22px; }
+    .guide-btn-primary { background: var(--blue); color: white; padding: 13px 20px; border-radius: 999px; font-weight: 700; font-size: 14px; text-decoration: none; transition: background 0.2s; }
+    .guide-btn-primary:hover { background: var(--blue-dark); }
+    .guide-note { font-size: 12px; color: var(--gray); margin-top: 12px; }
+
+    @media (max-width: 768px) {
+      nav { padding: 14px 20px; } .nav-links,.nav-cta { display: none; } .nav-hamburger { display: flex; }
+      .map-header,.facts-section { padding-left: 20px; padding-right: 20px; }
+      .map-controls { padding: 16px 20px; top: 68px; }
+      .map-wrapper { height: 50vh; }
+      .guide-fab { right: 16px; bottom: 16px; padding: 13px 18px; font-size: 13px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="mobile-nav" id="mobileNav">
+  <button class="mobile-close" onclick="closeMobileNav()">X</button>
+  <a href="index.html" onclick="closeMobileNav()">Home</a>
+  <a href="map.html" onclick="closeMobileNav()">STEM Map</a>
+  <a href="board.html" onclick="closeMobileNav()">Drawing Board</a>
+  <a href="articles.html" onclick="closeMobileNav()">Articles</a>
+  <a href="community.html" onclick="closeMobileNav()">Community</a>
+  <a href="apply.html" onclick="closeMobileNav()">How to Submit</a>
+</div>
+
+<nav>
+  <a href="index.html"><img src="assets/logo.png" alt="STEMina" style="height:44px;"/></a>
+  <ul class="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="map.html" class="active">STEM Map</a></li>
+    <li><a href="board.html">Drawing Board</a></li>
+    <li><a href="articles.html">Articles</a></li>
+    <li><a href="community.html">Community</a></li>
+    <li><a href="apply.html">How to Submit</a></li>
+  </ul>
+  <a href="apply.html#portal" class="nav-cta">Submit Your Work</a>
+  <div class="nav-hamburger" onclick="openMobileNav()"><span></span><span></span><span></span></div>
+</nav>
+
+<div class="map-header">
+  <div class="map-header-content">
+    <h1>Global STEM Map</h1>
+    <p>Click any country on the map to discover a unique science fact or traditional STEM method from that region.</p>
+  </div>
+</div>
+
+<div class="map-controls">
+  <span class="filter-label">Show:</span>
+  <button class="filter-btn active" data-type="all">All</button>
+  <button class="filter-btn" data-type="Science Fact">Science Facts</button>
+  <button class="filter-btn" data-type="Traditional Method">Traditional Methods</button>
+</div>
+
+<div class="map-wrapper">
+  <div id="stemMap"></div>
+</div>
+
+<section class="facts-section">
+  <div class="facts-inner">
+    <div class="facts-header sr">
+      <h2>Browse All STEM Facts</h2>
+      <p>Explore cultural STEM knowledge from around the world — click a card to find it on the map.</p>
+    </div>
+    <div class="facts-grid" id="factsGrid">
+      <!-- Populated by JS -->
+    </div>
+  </div>
+</section>
+
+<button class="guide-fab" onclick="openGuideModal()">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+  Add Your Fact
+</button>
+
+<div class="guide-overlay" id="guideOverlay">
+  <div class="guide-modal">
+    <button class="guide-close" onclick="closeGuideModal()">&#x2715;</button>
+    <span class="stemina-wordmark">Global Showcase</span>
+    <h3>Got a STEM fact from your culture?</h3>
+    <p class="guide-intro">Science facts and traditional methods from around the world get pinned to this map. Here's how to get yours added.</p>
+
+    <div class="guide-section-label">How It Works</div>
+    <ol class="guide-steps">
+      <li><span class="num">01</span><span>Submit your fact via the Google Form below — include the country it's from and a short write-up.</span></li>
+      <li><span class="num">02</span><span>Our team reviews it for accuracy and fit, then approves it for the map.</span></li>
+      <li><span class="num">03</span><span>It goes live on the map for the world to explore — with your name credited as contributor.</span></li>
+    </ol>
+
+    <div class="guide-section-label">What We're Looking For</div>
+    <ul class="guide-criteria">
+      <li>A real science fact or traditional method tied to a specific country or culture</li>
+      <li>Accurate and, where possible, a source or explanation of how you know it</li>
+      <li>Written clearly enough to fit in a short map popup</li>
+    </ul>
+
+    <div class="guide-actions">
+      <a href="https://docs.google.com/forms/d/e/1FAIpQLScb_mCGoZ2uT9XwzbukG9DXNLLg-gH_0CK7uA9-_fImWK005Q/viewform?usp=dialog" target="_blank" rel="noopener" class="guide-btn-primary">Submit via Google Form</a>
+    </div>
+    <p class="guide-note">This is a selective program — be specific in your submission!</p>
+  </div>
+</div>
+
+<footer>
+  <p><strong>STEMina EDU</strong> — Student-Led STEM Initiative &nbsp;|&nbsp; 2025 All rights reserved.</p>
+</footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+  function openMobileNav() { document.getElementById('mobileNav').classList.add('open'); }
+  function closeMobileNav() { document.getElementById('mobileNav').classList.remove('open'); }
+
+  function openGuideModal() { document.getElementById('guideOverlay').classList.add('open'); }
+  function closeGuideModal() { document.getElementById('guideOverlay').classList.remove('open'); }
+  document.getElementById('guideOverlay').addEventListener('click', e => {
+    if (e.target.id === 'guideOverlay') closeGuideModal();
+  });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeGuideModal(); });
+
+  // ─── STEM DATA ───
+  // Populated entirely from admin-submitted facts loaded via Firebase below.
+  const stemData = [];
+
+  // ─── LOAD ADMIN-ADDED FACTS FROM FIREBASE ───
+  // Uses dynamic import() (not type="module") so this stays a classic
+  // script and all the existing onclick="..." handlers keep working.
+  async function loadMapFactsFromFirebase() {
+    try {
+      const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js");
+      const { getFirestore, collection, getDocs, query, orderBy } =
+        await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+
+      const app = initializeApp({
+        apiKey: "AIzaSyBhco5CTT1HUWSGhImn2YiTx5oYM8-v_xM",
+        authDomain: "stemina-global-showcase.firebaseapp.com",
+        projectId: "stemina-global-showcase",
+        storageBucket: "stemina-global-showcase.firebasestorage.app",
+        messagingSenderId: "789773985772",
+        appId: "1:789773985772:web:bac19acc7f554a825602c9"
+      });
+      const db = getFirestore(app);
+
+      const q = query(collection(db, 'mapfacts'), orderBy('createdAt', 'desc'));
+      const snap = await getDocs(q);
+
+      snap.forEach(d => {
+        const data = d.data();
+        if (!data.country || !data.fact) return;
+
+        const dCountry = data.country.toLowerCase().trim();
+        let entry = stemData.find(x => x.country.toLowerCase().trim() === dCountry);
+
+        // No exact name match? Check if it's the same map location anyway
+        // (e.g. submitted with slightly different spelling/casing) so it
+        // merges into the existing pin's < > list instead of making a new one.
+        if (!entry && data.lat != null && data.lng != null) {
+          entry = stemData.find(x =>
+            Math.abs(x.lat - data.lat) < 0.75 && Math.abs(x.lng - data.lng) < 0.75
+          );
+        }
+
+        if (!entry) {
+          entry = { country: data.country, lat: data.lat || 0, lng: data.lng || 0, entries: [] };
+          stemData.push(entry);
+        }
+        if (entry.entries.length < 5) {
+          entry.entries.unshift({
+            type: data.type || 'Science Fact',
+            fact: data.fact,
+            tag: data.tag || '',
+            contributor: data.contributor || 'STEMina Team'
+          });
+        }
+      });
+    } catch (e) {
+      console.error('Could not load map facts from Firebase:', e);
+    }
+  }
+
+  // Track current popup entry index per country
+  const popupIndex = {};
+
+  // Init map
+  const map = L.map('stemMap', { zoomControl: true, scrollWheelZoom: false }).setView([20, 10], 2);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+    attribution: 'CartoDB', subdomains: 'abcd', maxZoom: 19
+  }).addTo(map);
+
+  function makeIcon(type) {
+    const color = type === 'Science Fact' ? '#1A3FCC' : '#0F9E6E';
+    return L.divIcon({
+      className: '',
+      html: `<div style="width:16px;height:16px;border-radius:50%;background:${color};border:3px solid white;box-shadow:0 3px 10px rgba(0,0,0,0.25);"></div>`,
+      iconSize: [16,16], iconAnchor: [8,8]
+    });
+  }
+
+  function buildPopupHTML(d, idx) {
+    const e = d.entries[idx];
+    const total = d.entries.length;
+    const hasPrev = idx > 0;
+    const hasNext = idx < total - 1;
+    return `
+      <div style="height:6px;background:${e.type === 'Science Fact' ? '#1A3FCC' : '#0F9E6E'};"></div>
+      <div style="padding:18px 20px 20px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+          <div style="font-size:10px;font-weight:800;letter-spacing:2px;color:${e.type === 'Science Fact' ? '#1A3FCC' : '#0F9E6E'};text-transform:uppercase;">${e.type}</div>
+          ${total > 1 ? `<div style="font-size:11px;color:#9ca3af;font-weight:600;">${idx+1} / ${total}</div>` : ''}
+        </div>
+        <div style="font-family:'Hertical',sans-serif;font-size:22px;color:#0D1B5E;margin-bottom:8px;">${d.country}</div>
+        <div style="font-size:13px;color:#4a5270;line-height:1.65;margin-bottom:12px;">${e.fact}</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+          <span style="background:rgba(26,63,204,0.07);color:#1A3FCC;font-size:11px;font-weight:600;padding:4px 12px;border-radius:999px;">${e.tag}</span>
+          ${total > 1 ? `
+          <div style="display:flex;gap:6px;">
+            <button onmousedown="event.stopPropagation()" onclick="event.stopPropagation();navigatePopup('${d.country}',-1)" style="width:28px;height:28px;border-radius:50%;border:2px solid rgba(26,63,204,0.2);background:${hasPrev ? '#1A3FCC' : 'transparent'};color:${hasPrev ? 'white' : '#d1d5db'};font-size:13px;cursor:${hasPrev ? 'pointer' : 'default'};display:flex;align-items:center;justify-content:center;transition:all 0.2s;">&lt;</button>
+            <button onmousedown="event.stopPropagation()" onclick="event.stopPropagation();navigatePopup('${d.country}',1)" style="width:28px;height:28px;border-radius:50%;border:2px solid rgba(26,63,204,0.2);background:${hasNext ? '#1A3FCC' : 'transparent'};color:${hasNext ? 'white' : '#d1d5db'};font-size:13px;cursor:${hasNext ? 'pointer' : 'default'};display:flex;align-items:center;justify-content:center;transition:all 0.2s;">&gt;</button>
+          </div>` : ''}
+        </div>
+        <div style="font-size:10px;color:#9ca3af;margin-top:10px;">Contributed by ${e.contributor}</div>
+      </div>
+    `;
+  }
+
+  let markers = [];
+
+  function addMarkers(filter) {
+    markers.forEach(m => map.removeLayer(m));
+    markers = [];
+    stemData.forEach(d => {
+      const firstEntry = d.entries[0];
+      if (filter !== 'all' && !d.entries.some(e => e.type === filter)) return;
+      if (!(d.country in popupIndex)) popupIndex[d.country] = 0;
+      const m = L.marker([d.lat, d.lng], { icon: makeIcon(firstEntry.type) })
+        .addTo(map)
+        .bindPopup(() => buildPopupHTML(d, popupIndex[d.country] || 0), { maxWidth: 320, className: 'stemina-popup' });
+      m._stemData = d;
+      markers.push(m);
+    });
+  }
+
+  // Change which entry is shown for a country — updates the open map
+  // popup (if any) AND the matching fact card below the map, so both
+  // stay in sync no matter which one you clicked < / > on.
+  function setEntryIndex(country, idx) {
+    const d = stemData.find(x => x.country === country);
+    if (!d) return;
+    popupIndex[country] = idx;
+
+    markers.forEach(m => {
+      if (m._stemData && m._stemData.country === country && m.isPopupOpen()) {
+        m.setPopupContent(buildPopupHTML(d, idx));
+      }
+    });
+
+    const card = document.querySelector(`.fact-card[data-country="${CSS.escape(country)}"]`);
+    if (card) card.innerHTML = cardHTML(d, idx);
+  }
+
+  // Navigate < > inside open map popup
+  window.navigatePopup = function(country, direction) {
+    const d = stemData.find(x => x.country === country);
+    if (!d) return;
+    const cur = popupIndex[country] || 0;
+    const next = Math.max(0, Math.min(d.entries.length - 1, cur + direction));
+    setEntryIndex(country, next);
+  };
+
+  // Filter buttons
+  let activeFilter = 'all';
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      activeFilter = btn.dataset.type;
+      addMarkers(activeFilter);
+      renderCards(activeFilter);
+    });
+  });
+
+  // Build the inner HTML for one fact card at a given entry index,
+  // including its own < > buttons when the country has more than one entry.
+  function cardHTML(d, idx) {
+    const e = d.entries[idx];
+    const total = d.entries.length;
+    const hasPrev = idx > 0;
+    const hasNext = idx < total - 1;
+    return `
+      <div class="fact-card-top">
+        <div class="fact-country">${d.country}</div>
+        <div class="fact-type">${e.type}</div>
+      </div>
+      <p class="fact-text">${e.fact}</p>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;flex-wrap:wrap;gap:8px;">
+        <span style="background:rgba(26,63,204,0.07);color:#1A3FCC;font-size:11px;font-weight:600;padding:4px 12px;border-radius:999px;">${e.tag || ''}</span>
+        ${total > 1 ? `
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="font-size:11px;color:#9ca3af;font-weight:600;">${idx + 1} / ${total}</span>
+          <div style="display:flex;gap:6px;">
+            <button class="card-nav-btn" data-dir="-1" style="width:26px;height:26px;border-radius:50%;border:2px solid rgba(26,63,204,0.2);background:${hasPrev ? '#1A3FCC' : 'transparent'};color:${hasPrev ? 'white' : '#d1d5db'};font-size:12px;cursor:${hasPrev ? 'pointer' : 'default'};display:flex;align-items:center;justify-content:center;">&lt;</button>
+            <button class="card-nav-btn" data-dir="1" style="width:26px;height:26px;border-radius:50%;border:2px solid rgba(26,63,204,0.2);background:${hasNext ? '#1A3FCC' : 'transparent'};color:${hasNext ? 'white' : '#d1d5db'};font-size:12px;cursor:${hasNext ? 'pointer' : 'default'};display:flex;align-items:center;justify-content:center;">&gt;</button>
+          </div>
+        </div>` : ''}
+      </div>
+    `;
+  }
+
+  // Render fact cards below the map (one card per country)
+  function renderCards(filter) {
+    const grid = document.getElementById('factsGrid');
+    grid.innerHTML = '';
+    let i = 0;
+    stemData.forEach(d => {
+      const hasMatch = filter === 'all' || d.entries.some(e => e.type === filter);
+      if (!hasMatch) return;
+      if (!(d.country in popupIndex)) popupIndex[d.country] = 0;
+      const card = document.createElement('div');
+      card.className = 'fact-card sr';
+      card.dataset.country = d.country;
+      card.innerHTML = cardHTML(d, popupIndex[d.country]);
+      grid.appendChild(card);
+      setTimeout(() => card.classList.add('visible'), i * 60);
+      i++;
+    });
+  }
+
+  // One delegated click listener handles both the < > buttons and
+  // clicking the card itself (to jump to that pin on the map).
+  document.getElementById('factsGrid').addEventListener('click', (e) => {
+    const navBtn = e.target.closest('.card-nav-btn');
+    const card = e.target.closest('.fact-card');
+    if (!card) return;
+    const country = card.dataset.country;
+    const d = stemData.find(x => x.country === country);
+    if (!d) return;
+
+    if (navBtn) {
+      e.stopPropagation();
+      const dir = parseInt(navBtn.dataset.dir, 10);
+      const cur = popupIndex[country] || 0;
+      const next = Math.max(0, Math.min(d.entries.length - 1, cur + dir));
+      if (next !== cur) setEntryIndex(country, next);
+      return;
+    }
+
+    map.setView([d.lat, d.lng], 5, { animate: true });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setTimeout(() => {
+      markers.forEach(m => {
+        if (m._stemData && m._stemData.country === d.country) m.openPopup();
+      });
+    }, 800);
+  });
+
+  addMarkers('all');
+  renderCards('all');
+
+  // Load admin-added facts, merge them in, then re-draw
+  loadMapFactsFromFirebase().then(() => {
+    addMarkers(activeFilter);
+    renderCards(activeFilter);
+  });
+
+  // Scroll reveal
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.sr').forEach(el => obs.observe(el));
+</script>
+</body>
+</html>

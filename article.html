@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="referrer" content="strict-origin-when-cross-origin"/>
+  <title>Article | STEMina EDU</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    @font-face{font-family:'Hertical';src:url('assets/Hertical_Sans_Rough.otf') format('opentype');}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    :root{--blue:#1A3FCC;--blue-dark:#0F2799;--yellow:#FFD700;--cream:#F5F0E8;--gray:#6B7280;--ink:#0D1B5E;}
+    html{scroll-behavior:smooth;}
+    body{font-family:'Inter',sans-serif;color:var(--ink);background:var(--cream);overflow-x:clip;}
+
+    nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:14px 56px;background:rgba(245,240,232,0.92);backdrop-filter:blur(16px);border-bottom:1px solid rgba(26,63,204,0.1);}
+    .nav-logo img{height:44px;}
+    .nav-links{display:flex;gap:28px;list-style:none;}
+    .nav-links a{text-decoration:none;font-size:14px;font-weight:600;color:var(--gray);transition:color 0.2s;}
+    .nav-links a:hover,.nav-links a.active{color:var(--blue);}
+    .nav-cta{background:var(--blue);color:white;padding:10px 24px;border-radius:999px;font-size:13px;font-weight:700;text-decoration:none;}
+    .nav-hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;}
+    .nav-hamburger span{width:24px;height:2px;background:var(--blue);border-radius:2px;}
+    .mobile-nav{display:none;position:fixed;inset:0;background:var(--cream);z-index:300;flex-direction:column;align-items:center;justify-content:center;gap:36px;}
+    .mobile-nav.open{display:flex;}
+    .mobile-nav a{font-family:'Hertical',sans-serif;font-size:36px;color:var(--blue);text-decoration:none;}
+    .mobile-close{position:absolute;top:24px;right:28px;font-size:28px;background:none;border:none;cursor:pointer;color:var(--blue);}
+
+    /* HERO — same watercolour bg used across the site for a consistent feel */
+    .article-hero{
+      padding:150px 56px 70px;
+      background:url('assets/bg-watercolor2.png') center/cover no-repeat;
+      position:relative;
+    }
+    .article-hero::before{content:'';position:absolute;inset:0;background:rgba(200,220,248,0.5);}
+    .hero-inner{position:relative;z-index:2;max-width:820px;margin:0 auto;}
+    .back-link{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:var(--blue);text-decoration:none;margin-bottom:24px;}
+    .back-link:hover{text-decoration:underline;}
+    .hero-meta{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:18px;}
+    .hero-format{font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:white;padding:5px 14px;border-radius:999px;background:var(--blue);}
+    .hero-country{font-size:14px;font-weight:700;color:var(--blue-dark);}
+    .hero-category{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:5px 14px;border-radius:999px;background:rgba(255,255,255,0.65);color:var(--gray);}
+    .hero-title{font-family:'Hertical',sans-serif;font-size:clamp(34px,6vw,64px);color:var(--blue-dark);line-height:1.08;margin-bottom:16px;}
+    .hero-author{font-size:15px;color:#3a4870;}
+
+    /* Cover photo, shown in a tilted polaroid frame — slides down and fades
+       out as the page is scrolled (driven by scroll position in JS, not a
+       one-off entrance animation). */
+    .hero-cover-photo{
+      position:relative; margin:12px auto 0; width:min(1100px,96vw); aspect-ratio:16/9;
+      transform:rotate(2deg); z-index:3; will-change:transform,opacity;
+    }
+    .hero-cover-photo .cover-photo-window{position:absolute;left:23.85%;right:24.06%;top:16.94%;bottom:25.28%;overflow:hidden;background:#111;}
+    .hero-cover-photo .cover-photo-window img{width:100%;height:100%;object-fit:cover;display:block;}
+    .hero-cover-photo .cover-photo-frame{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;filter:drop-shadow(0 20px 40px rgba(0,0,0,0.22));}
+
+    /* BODY — decorated with the same background used site-wide, faded behind the content */
+    .article-body-section{
+      position:relative;
+      padding:56px 56px 100px;
+      background:url('assets/bg-watercolor2.png') center/cover no-repeat fixed;
+    }
+    .article-body-section::before{content:'';position:absolute;inset:0;background:rgba(245,240,232,0.94);}
+    .article-body-inner{position:relative;z-index:2;max-width:760px;margin:0 auto;background:white;border-radius:24px;padding:48px 52px;border:2px solid rgba(26,63,204,0.08);box-shadow:0 24px 64px rgba(26,63,204,0.08);}
+    .article-content{font-size:17px;color:#3a4870;line-height:1.9;}
+    .article-content p{margin-bottom:20px;}
+    .article-media{margin-top:28px;border-radius:14px;overflow:hidden;aspect-ratio:16/9;}
+    .article-media iframe{width:100%;height:100%;border:none;}
+    .article-media.pdf-embed{aspect-ratio:unset;height:640px;border:1px solid rgba(26,63,204,0.1);}
+    .article-media-link{display:inline-block;margin-top:24px;background:var(--blue);color:white;padding:13px 26px;border-radius:999px;text-decoration:none;font-weight:700;font-size:14px;transition:background 0.2s;}
+    .article-media-link:hover{background:var(--blue-dark);}
+    .article-media-img{margin-top:28px;width:100%;border-radius:14px;display:block;object-fit:cover;max-height:520px;}
+    .local-file-warn{margin-top:24px;background:rgba(234,88,12,0.06);border:1px solid rgba(234,88,12,0.2);border-radius:12px;padding:16px 20px;font-size:14px;color:#7c2d12;line-height:1.6;}
+    .local-file-warn strong{display:block;margin-bottom:4px;font-size:13px;}
+
+    /* TWO-COLUMN LAYOUT — used only when images are attached to the article.
+       The whole white card splits: text (+ any video/media embed) on the
+       left, image slider on the right, sticky so it stays in view while you
+       scroll the text — and naturally stops once the text column ends,
+       since that's what defines the flex container's height. */
+    .article-body-inner.has-images{
+      max-width:1040px; display:flex; align-items:flex-start; gap:48px;
+    }
+    .article-body-inner.has-images .article-content{flex:1; min-width:0;}
+    .img-slider-col{width:360px; flex-shrink:0; position:sticky; top:100px; display:flex; flex-direction:column;}
+    .article-img-slider{
+      border-radius:16px; overflow:hidden; position:relative;
+      box-shadow:0 16px 40px rgba(26,63,204,0.14); background:#e8edfa;
+    }
+    .article-img-slider .slide-track{display:flex;transition:transform 0.35s ease;}
+    .article-img-slider .slide-item{width:100%;flex-shrink:0;position:relative;}
+    .article-img-slider img{width:100%;flex-shrink:0;aspect-ratio:4/3;object-fit:cover;display:block;}
+    .slide-caption{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(10,20,60,0.75));color:white;font-size:12px;padding:22px 12px 10px;line-height:1.4;}
+    .article-img-slider img{cursor:zoom-in;}
+    .slider-hint{display:flex;align-items:center;gap:5px;justify-content:center;font-size:11px;color:var(--gray);margin-top:8px;}
+    .slider-hint svg{width:12px;height:12px;flex-shrink:0;}
+
+    /* LIGHTBOX — full-size, clear view of a clicked image */
+    .img-lightbox{
+      position:fixed;inset:0;z-index:500;display:none;align-items:center;justify-content:center;
+      padding:40px 20px;background:rgba(8,14,40,0.92);backdrop-filter:blur(4px);
+      opacity:0;transition:opacity 0.25s ease;
+    }
+    .img-lightbox.open{display:flex;opacity:1;}
+    .img-lightbox-inner{max-width:min(900px,92vw);max-height:88vh;display:flex;flex-direction:column;align-items:center;transform:scale(0.96);transition:transform 0.25s ease;}
+    .img-lightbox.open .img-lightbox-inner{transform:scale(1);}
+    .img-lightbox img{max-width:100%;max-height:76vh;border-radius:12px;object-fit:contain;box-shadow:0 30px 80px rgba(0,0,0,0.5);}
+    .img-lightbox-caption{color:rgba(255,255,255,0.85);font-size:14px;text-align:center;margin-top:16px;max-width:640px;line-height:1.6;}
+    .img-lightbox-close{
+      position:absolute;top:20px;right:24px;width:40px;height:40px;border-radius:50%;
+      background:rgba(255,255,255,0.12);border:none;color:white;font-size:20px;cursor:pointer;
+      display:flex;align-items:center;justify-content:center;transition:background 0.2s,transform 0.2s;
+    }
+    .img-lightbox-close:hover{background:rgba(255,255,255,0.22);transform:scale(1.06);}
+    .lightbox-arrow{
+      position:absolute;top:50%;transform:translateY(-50%);width:44px;height:44px;border-radius:50%;
+      background:rgba(255,255,255,0.12);border:none;color:white;font-size:20px;cursor:pointer;
+      display:flex;align-items:center;justify-content:center;transition:background 0.2s,transform 0.2s;
+    }
+    .lightbox-arrow:hover{background:rgba(255,255,255,0.22);transform:translateY(-50%) scale(1.06);}
+    .lightbox-arrow.prev{left:16px;} .lightbox-arrow.next{right:16px;}
+    .lightbox-counter{color:rgba(255,255,255,0.6);font-size:12px;margin-top:6px;letter-spacing:0.5px;}
+    @media(max-width:640px){ .lightbox-arrow{width:38px;height:38px;font-size:17px;} .lightbox-arrow.prev{left:8px;} .lightbox-arrow.next{right:8px;} }
+    .slider-arrow{position:absolute;top:50%;transform:translateY(-50%);background:rgba(255,255,255,0.9);border:none;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:13px;color:var(--blue-dark);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 10px rgba(0,0,0,0.15);transition:transform 0.15s;}
+    .slider-arrow:hover{transform:translateY(-50%) scale(1.08);}
+    .slider-arrow.prev{left:8px;} .slider-arrow.next{right:8px;}
+    .slider-dots{position:absolute;bottom:10px;left:0;right:0;display:flex;justify-content:center;gap:6px;}
+    .slider-dots span{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.55);cursor:pointer;transition:background 0.2s;}
+    .slider-dots span.active{background:white;}
+    .article-body-inner.has-images .article-img-slider img{aspect-ratio:3/4;}
+
+    .content-section{margin-top:32px;padding-top:24px;border-top:1px solid rgba(26,63,204,0.08);}
+    .content-section-title{font-family:'Hertical',sans-serif;font-size:20px;color:var(--blue-dark);margin-bottom:10px;}
+    .content-section-body{font-size:16px;color:#3a4870;line-height:1.85;}
+    .content-section-body p{margin-bottom:14px;}
+
+    .not-found{text-align:center;padding:120px 20px;}
+    .not-found h2{font-family:'Hertical',sans-serif;font-size:36px;color:var(--blue);margin-bottom:12px;}
+    .not-found p{color:var(--gray);margin-bottom:24px;}
+    .not-found a{color:var(--blue);font-weight:700;text-decoration:none;}
+
+    .sr{opacity:0;transform:translateY(24px);transition:opacity 0.7s ease,transform 0.7s ease;}
+    .sr.visible{opacity:1;transform:translateY(0);}
+
+    footer{background:#060e36;padding:40px 56px;text-align:center;font-size:14px;color:rgba(255,255,255,0.4);}
+    footer strong{color:white;}
+
+    @media (max-width:768px){
+      nav{padding:14px 20px;} .nav-links,.nav-cta{display:none;} .nav-hamburger{display:flex;}
+      .article-hero{padding:120px 20px 50px;}
+      .hero-cover-photo{width:min(600px,96vw);margin-top:24px;}
+      .article-body-section{padding:36px 20px 70px;}
+      .article-body-inner{padding:32px 24px;}
+      .article-body-inner.has-images{display:block;}
+      .img-slider-col{position:static;width:100%;margin:0 0 24px;}
+    }
+  </style>
+</head>
+<body>
+
+<div class="mobile-nav" id="mobileNav">
+  <button class="mobile-close" onclick="closeMobileNav()">X</button>
+  <a href="index.html" onclick="closeMobileNav()">Home</a>
+  <a href="map.html" onclick="closeMobileNav()">STEM Map</a>
+  <a href="board.html" onclick="closeMobileNav()">Drawing Board</a>
+  <a href="articles.html" onclick="closeMobileNav()">Articles</a>
+  <a href="community.html" onclick="closeMobileNav()">Community</a>
+  <a href="apply.html" onclick="closeMobileNav()">How to Submit</a>
+</div>
+
+<nav>
+  <a href="index.html"><img src="assets/logo.png" alt="STEMina" style="height:44px;"/></a>
+  <ul class="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="map.html">STEM Map</a></li>
+    <li><a href="board.html">Drawing Board</a></li>
+    <li><a href="articles.html" class="active">Articles</a></li>
+    <li><a href="community.html">Community</a></li>
+    <li><a href="apply.html">How to Submit</a></li>
+  </ul>
+  <a href="apply.html#portal" class="nav-cta">Submit Your Work</a>
+  <div class="nav-hamburger" onclick="openMobileNav()"><span></span><span></span><span></span></div>
+</nav>
+
+<div id="articleRoot">
+  <div style="padding:180px 20px;text-align:center;color:var(--gray);">Loading article...</div>
+</div>
+
+<div class="img-lightbox" id="imgLightbox">
+  <button class="img-lightbox-close" id="lightboxClose" aria-label="Close">&times;</button>
+  <button class="lightbox-arrow prev" id="lightboxPrev" aria-label="Previous image">&lt;</button>
+  <button class="lightbox-arrow next" id="lightboxNext" aria-label="Next image">&gt;</button>
+  <div class="img-lightbox-inner">
+    <img id="lightboxImg" src="" alt=""/>
+    <div class="img-lightbox-caption" id="lightboxCaption"></div>
+    <div class="lightbox-counter" id="lightboxCounter"></div>
+  </div>
+</div>
+
+<footer><p><strong>STEMina EDU</strong> — Student-Led STEM Initiative &nbsp;|&nbsp; 2025 All rights reserved.</p></footer>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getFirestore, doc, getDoc }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const app = initializeApp({
+    apiKey:"AIzaSyBhco5CTT1HUWSGhImn2YiTx5oYM8-v_xM",
+    authDomain:"stemina-global-showcase.firebaseapp.com",
+    projectId:"stemina-global-showcase",
+    storageBucket:"stemina-global-showcase.firebasestorage.app",
+    messagingSenderId:"789773985772",
+    appId:"1:789773985772:web:bac19acc7f554a825602c9"
+  });
+  const db = getFirestore(app);
+
+  function openMobileNav(){document.getElementById('mobileNav').classList.add('open');}
+  function closeMobileNav(){document.getElementById('mobileNav').classList.remove('open');}
+  window.openMobileNav=openMobileNav; window.closeMobileNav=closeMobileNav;
+
+  // Same 5 sample articles as articles.html, so seed IDs resolve here too.
+  const seedArticles = [
+    {id:'seed1',title:"The Ancient Origins of Zero",author:"STEMina Team",format:"article",category:"science-facts",country:"India",desc:"How Indian mathematicians invented zero and revolutionized mathematics for the entire world.",body:"The concept of zero as a number — not just a placeholder — was developed by Indian mathematician Brahmagupta in the 7th century AD. Before this, many civilizations struggled to represent nothingness mathematically.\n\nZero allowed for the decimal system, negative numbers, and ultimately became the foundation of algebra, calculus, and modern computing. Without zero, the binary code that powers every computer and smartphone today would not exist.\n\nIndia's contribution to mathematics is one of the most significant in human history — and it all began with the simple but revolutionary idea that nothing could be something.",media:""},
+    {id:'seed2',title:"Traditional Water Harvesting in Kenya",author:"STEMina Team",format:"video",category:"traditional-methods",country:"Kenya",desc:"Ancient techniques used by communities in Kenya to harvest rainwater — engineering wisdom passed down for generations.",body:"For centuries, communities in arid regions of Kenya developed sophisticated fog-catching and rainwater harvesting techniques to survive dry seasons.\n\nUsing natural materials like woven branches and leaves, these communities created large nets that captured moisture from fog rolling in from higher elevations. The collected water dripped down into storage pots below.\n\nModern engineers have now adopted this traditional knowledge to create large-scale fog-catching installations in water-scarce regions around the world — proving that ancient wisdom often contains remarkable scientific insight.",media:""},
+    {id:'seed3',title:"Origami and the Geometry of Paper",author:"STEMina Team",format:"story",category:"science-facts",country:"Japan",desc:"How traditional Japanese paper folding connects to modern mathematics and space technology.",body:"Origami, the ancient Japanese art of paper folding, is far more than an art form — it is applied mathematics.\n\nEvery fold creates geometric relationships: angles must be precise, ratios must balance, and complex three-dimensional forms emerge from flat two-dimensional sheets. Mathematicians have spent decades studying the geometry underlying origami folds.\n\nToday, NASA engineers use origami principles to design solar panels that fold compactly for launch and unfold precisely in space. Medical researchers use origami to design stents that fold to enter blood vessels and then open up. The ancient art of Japan is solving 21st-century engineering problems.",media:""},
+    {id:'seed4',title:"Mapping Amazon Biodiversity",author:"STEMina Team",format:"project",category:"projects",country:"Brazil",desc:"A student-led project mapping plant species in local rainforest areas using traditional ecological knowledge.",body:"This project combined indigenous botanical knowledge with modern mapping technology to create the first detailed plant species map of a section of the Amazon.\n\nWorking with local community elders who could identify hundreds of plant species by sight, the student team recorded GPS coordinates, photographed each species, and cross-referenced findings with scientific databases.\n\nThe result was a dataset of over 340 unique plant species — 12 of which had not been recorded in this region before. The project demonstrated that traditional ecological knowledge, built over generations, often surpasses what scientific surveys alone can discover.",media:""},
+    {id:'seed5',title:"Mathematics in Adire Weaving",author:"STEMina Team",format:"art",category:"traditional-methods",country:"Nigeria",desc:"The geometric patterns in traditional Nigerian Adire fabric contain complex mathematical sequences.",body:"Adire is a traditional Yoruba textile art from Nigeria, created using a resist-dyeing technique with indigo. But look closely at the patterns, and you will find something remarkable: complex geometric sequences, fractal-like repetition, and precise mathematical relationships.\n\nThe weavers who create Adire never formally studied mathematics — yet the patterns they produce contain the same structures that mathematicians call L-systems and self-similar fractals. This knowledge was developed empirically over centuries, passed from mother to daughter through practice.\n\nResearchers studying Adire patterns have found that they encode information about traditional astronomical calendars, seasonal cycles, and even community social structures — making Adire not just fabric, but a form of written cultural knowledge.",media:""},
+  ];
+
+  // Google Drive "share" links (drive.google.com/file/d/ID/view?usp=sharing) are NOT
+  // direct image URLs — they load an HTML preview page, not the image itself.
+  // This converts them to a Drive thumbnail URL that works as a normal <img src>,
+  // as long as the file's sharing is set to "Anyone with the link".
+  function toDirectImageUrl(url) {
+    if (!url) return url;
+    const u = url.trim();
+    const driveMatch = u.match(/drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?id=)([a-zA-Z0-9_-]+)/);
+    if (driveMatch) return `https://lh3.googleusercontent.com/d/${driveMatch[1]}`;
+    return u;
+  }
+
+  function renderNotFound() {
+    document.getElementById('articleRoot').innerHTML = `
+      <div class="not-found">
+        <h2>Article not found</h2>
+        <p>This article may have been removed, or the link is incorrect.</p>
+        <a href="articles.html">&larr; Back to all articles</a>
+      </div>`;
+  }
+
+  // Mirrors admin.html's FORMAT_CONFIG — which formats embed media directly
+  // on the page (video player, image, slides) vs. show it as a plain button.
+  const MEDIA_EMBED_FORMATS = new Set(['video', 'animation', 'art']);
+
+  function fieldSection(label, value) {
+    if (!value || !value.trim()) return '';
+    const paragraphs = value.split('\n').filter(p => p.trim()).map(p => `<p>${p}</p>`).join('');
+    return `<div class="content-section"><h3 class="content-section-title">${label}</h3><div class="content-section-body">${paragraphs}</div></div>`;
+  }
+
+  function renderArticle(a) {
+    const bodyParagraphs = (a.body || a.desc || 'No content available.')
+      .split('\n').filter(p => p.trim())
+      .map(p => `<p>${p}</p>`).join('');
+
+    const extraSections = [
+      fieldSection('What problem does this address?', a.problemAddress || a.methodsUsed),
+      fieldSection('What impact has it made?', a.impact || a.stemConnection),
+      fieldSection('What inspired this project?', a.inspiration || a.culturalSignificance),
+      fieldSection('Sources', a.sources)
+    ].join('');
+
+    // Images can be either the newer {url, caption} object shape or a plain URL string
+    // (older docs) — normalize both, and run every URL through the Drive converter.
+    const rawImages = Array.isArray(a.images) ? a.images.filter(Boolean) : [];
+    let images = rawImages.map(img => {
+      const url = typeof img === 'string' ? img : (img.url || '');
+      const caption = typeof img === 'string' ? '' : (img.caption || '');
+      return { url: toDirectImageUrl(url), caption };
+    }).filter(img => img.url);
+
+    // Fall back to the cover image if no project images were added
+    // Slider only shows if images were explicitly added — cover image is separate
+
+    let sliderHTML = '';
+    if (images.length > 0) {
+      const slides = images.map((img, i) => `
+        <div class="slide-item">
+          <img src="${img.url}" alt="${img.caption || a.title}" data-i="${i}" class="slide-img" onerror="this.closest('.slide-item').innerHTML='<div style=&quot;padding:40px 16px;text-align:center;color:#8892b0;font-size:13px;&quot;>Image failed to load — check the link is set to \\'Anyone with the link\\' and is a direct image.</div>'"/>
+          ${img.caption ? `<div class="slide-caption">${img.caption}</div>` : ''}
+        </div>`).join('');
+      const dots = images.length > 1
+        ? `<div class="slider-dots">${images.map((_, i) => `<span data-i="${i}" class="${i===0?'active':''}"></span>`).join('')}</div>`
+        : '';
+      const arrows = images.length > 1
+        ? `<button class="slider-arrow prev" id="sliderPrev" aria-label="Previous image">&lt;</button><button class="slider-arrow next" id="sliderNext" aria-label="Next image">&gt;</button>`
+        : '';
+      sliderHTML = `<div class="img-slider-col"><div class="article-img-slider" id="articleSlider"><div class="slide-track" id="sliderTrack">${slides}</div>${arrows}${dots}</div><div class="slider-hint"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>Click an image to view it full-size</div></div>`;
+    }
+
+    let mediaHTML = '';
+    if (a.media && a.media.trim()) {
+      const mediaUrl = a.media.trim();
+      const isEmbedFormat = MEDIA_EMBED_FORMATS.has(a.format);
+
+      const ytMatch = mediaUrl.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/);
+      const slidesMatch = mediaUrl.match(/docs\.google\.com\/presentation\/d\/([a-zA-Z0-9_-]+)/);
+      const canvaMatch = mediaUrl.match(/canva\.com\/design\/([a-zA-Z0-9_-]+)\/([a-zA-Z0-9_-]+)/);
+      const driveMatch = mediaUrl.match(/drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?id=)([a-zA-Z0-9_-]+)/);
+      const isPdf = /\.pdf($|\?)/i.test(mediaUrl);
+      const isImageLink = /\.(jpe?g|png|gif|webp|svg)($|\?)/i.test(mediaUrl);
+      const isLocalFile = /^(\/Users\/|\/home\/|[A-Za-z]:\\|file:\/\/)/i.test(mediaUrl);
+
+      if (isLocalFile) {
+        mediaHTML = `<div class="local-file-warn"><strong>This link points to a file on someone's computer, not the internet.</strong> Upload it to Google Drive (set sharing to "Anyone with the link") and paste that link instead.</div>`;
+      } else if (!isEmbedFormat) {
+        // Document-style formats (article, story, project, other) always
+        // get a plain button — never embedded, keeps the page focused on
+        // the written content.
+        const label = a.format === 'presentation' ? 'View Presentation' : 'View Reference Link';
+        mediaHTML = `<a href="${mediaUrl}" target="_blank" class="article-media-link">${label} &rarr;</a>`;
+      } else if (ytMatch) {
+        mediaHTML = `<div class="article-media"><iframe src="https://www.youtube-nocookie.com/embed/${ytMatch[1]}" referrerpolicy="strict-origin-when-cross-origin" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`;
+      } else if (driveMatch) {
+        // Google Drive file, publicly shared — embed directly (works for
+        // both video files and images/slides via Drive's own preview).
+        mediaHTML = `<div class="article-media"><iframe src="https://drive.google.com/file/d/${driveMatch[1]}/preview" allow="autoplay" allowfullscreen></iframe></div>`;
+      } else if (slidesMatch) {
+        mediaHTML = `<div class="article-media"><iframe src="https://docs.google.com/presentation/d/${slidesMatch[1]}/embed?start=false&loop=false&delayms=3000" allowfullscreen></iframe></div>`;
+      } else if (canvaMatch) {
+        mediaHTML = `<div class="article-media"><iframe src="https://www.canva.com/design/${canvaMatch[1]}/${canvaMatch[2]}/view?embed" allowfullscreen></iframe></div>`;
+      } else if (isPdf) {
+        mediaHTML = `<div class="article-media pdf-embed"><iframe src="https://docs.google.com/viewer?url=${encodeURIComponent(mediaUrl)}&embedded=true" referrerpolicy="strict-origin-when-cross-origin"></iframe></div>
+          <a href="${mediaUrl}" target="_blank" class="article-media-link">Open PDF in New Tab</a>`;
+      } else if (isImageLink) {
+        mediaHTML = `<img class="article-media-img" src="${mediaUrl}" alt="${a.title}"/>`;
+      } else {
+        // Unrecognized link even in an embed-style format — fall back to a button
+        // rather than trying (and failing) to embed something unknown.
+        mediaHTML = `<a href="${mediaUrl}" target="_blank" class="article-media-link">View Media &rarr;</a>`;
+      }
+    }
+
+    document.getElementById('articleRoot').innerHTML = `
+      <header class="article-hero">
+        <div class="hero-inner sr">
+          <a href="articles.html" class="back-link">&larr; Back to all articles</a>
+          <div class="hero-meta">
+            <span class="hero-format">${a.format || 'Article'}</span>
+            ${a.country ? `<span class="hero-country">${a.country}</span>` : ''}
+            <span class="hero-category">${(a.category || '').replace('-', ' ')}</span>
+          </div>
+          <h1 class="hero-title">${a.title}</h1>
+          <p class="hero-author">By ${a.author || 'Unknown'}</p>
+        </div>
+        ${a.coverImage && a.coverImage.trim() ? `
+        <div class="hero-cover-photo" id="heroCoverPhoto">
+          <div class="cover-photo-window"><img src="${toDirectImageUrl(a.coverImage.trim())}" alt="${a.title}"/></div>
+          <img class="cover-photo-frame" src="assets/rectangleFrame.png" alt="" aria-hidden="true"/>
+        </div>` : ''}
+      </header>
+      <section class="article-body-section">
+        <div class="article-body-inner sr${images.length > 0 ? ' has-images' : ''}">
+          <div class="article-content">${bodyParagraphs}${extraSections}${mediaHTML}</div>
+          ${sliderHTML}
+        </div>
+      </section>`;
+
+    document.title = `${a.title} | STEMina EDU`;
+
+    const obs = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+    }, { threshold: 0.05 });
+    document.querySelectorAll('.sr').forEach(el => obs.observe(el));
+    // Hero is above the fold — reveal it immediately rather than waiting on scroll.
+    requestAnimationFrame(() => document.querySelector('.hero-inner')?.classList.add('visible'));
+
+    // Cover photo slides down and fades out as the page scrolls — driven
+    // continuously by scroll position (not a one-off entrance animation),
+    // so scrolling back up brings it right back into place.
+    const coverPhoto = document.getElementById('heroCoverPhoto');
+    if (coverPhoto) {
+      const MAX_SCROLL = 420;   // px of scroll over which the effect completes
+      const MAX_DROP = 160;     // how far down it travels, in px
+      const BASE_ROTATE = 4;    // matches the CSS rotate(4deg)
+      let ticking = false;
+      function updateCoverPhoto() {
+        const p = Math.max(0, Math.min(1, window.scrollY / MAX_SCROLL));
+        coverPhoto.style.transform = `translateY(${MAX_DROP * p}px) rotate(${BASE_ROTATE + p * 4}deg)`;
+        coverPhoto.style.opacity = String(1 - p);
+        coverPhoto.style.pointerEvents = p > 0.9 ? 'none' : 'auto';
+        ticking = false;
+      }
+      window.addEventListener('scroll', () => {
+        if (!ticking) { requestAnimationFrame(updateCoverPhoto); ticking = true; }
+      }, { passive: true });
+      updateCoverPhoto();
+    }
+
+    // Wire up the image slider, if one was rendered
+    if (images.length > 1) {
+      let slideIdx = 0;
+      const track = document.getElementById('sliderTrack');
+      const dots = document.querySelectorAll('#articleSlider .slider-dots span');
+      function goTo(i) {
+        slideIdx = (i + images.length) % images.length;
+        track.style.transform = `translateX(-${slideIdx * 100}%)`;
+        dots.forEach((d, di) => d.classList.toggle('active', di === slideIdx));
+      }
+      document.getElementById('sliderPrev').addEventListener('click', () => goTo(slideIdx - 1));
+      document.getElementById('sliderNext').addEventListener('click', () => goTo(slideIdx + 1));
+      dots.forEach(d => d.addEventListener('click', () => goTo(Number(d.dataset.i))));
+    }
+
+    // Click any slide image to view it full-size in the lightbox
+    if (images.length > 0) {
+      document.querySelectorAll('.slide-img').forEach(imgEl => {
+        imgEl.addEventListener('click', () => openLightbox(images, Number(imgEl.dataset.i)));
+      });
+    }
+  }
+
+  let lightboxImages = [];
+  let lightboxIdx = 0;
+
+  function renderLightboxSlide() {
+    const img = lightboxImages[lightboxIdx];
+    document.getElementById('lightboxImg').src = img.url;
+    document.getElementById('lightboxImg').alt = img.caption || '';
+    document.getElementById('lightboxCaption').textContent = img.caption || '';
+    const multi = lightboxImages.length > 1;
+    document.getElementById('lightboxCounter').textContent = multi ? `${lightboxIdx + 1} / ${lightboxImages.length}` : '';
+    document.getElementById('lightboxPrev').style.display = multi ? 'flex' : 'none';
+    document.getElementById('lightboxNext').style.display = multi ? 'flex' : 'none';
+  }
+  function lightboxGoTo(i) {
+    lightboxIdx = (i + lightboxImages.length) % lightboxImages.length;
+    renderLightboxSlide();
+  }
+  function openLightbox(imagesArr, startIdx) {
+    lightboxImages = imagesArr;
+    lightboxIdx = startIdx;
+    renderLightboxSlide();
+    document.getElementById('imgLightbox').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeLightbox() {
+    document.getElementById('imgLightbox').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  document.getElementById('lightboxClose').addEventListener('click', closeLightbox);
+  document.getElementById('lightboxPrev').addEventListener('click', (e) => { e.stopPropagation(); lightboxGoTo(lightboxIdx - 1); });
+  document.getElementById('lightboxNext').addEventListener('click', (e) => { e.stopPropagation(); lightboxGoTo(lightboxIdx + 1); });
+  document.getElementById('imgLightbox').addEventListener('click', (e) => {
+    if (e.target.id === 'imgLightbox') closeLightbox();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (!document.getElementById('imgLightbox').classList.contains('open')) return;
+    if (e.key === 'Escape') closeLightbox();
+    else if (e.key === 'ArrowLeft') lightboxGoTo(lightboxIdx - 1);
+    else if (e.key === 'ArrowRight') lightboxGoTo(lightboxIdx + 1);
+  });
+
+
+  async function loadArticle() {
+    const id = new URLSearchParams(window.location.search).get('id');
+    if (!id) { renderNotFound(); return; }
+
+    const seed = seedArticles.find(a => a.id === id);
+    if (seed) { renderArticle(seed); return; }
+
+    try {
+      const snap = await getDoc(doc(db, 'articles', id));
+      if (snap.exists()) {
+        renderArticle({ id: snap.id, ...snap.data() });
+      } else {
+        renderNotFound();
+      }
+    } catch (e) {
+      console.error('[article] Could not load article from Firebase:', e);
+      renderNotFound();
+    }
+  }
+
+  loadArticle();
+</script>
+</body>
+</html>

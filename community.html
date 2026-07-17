@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Community | STEMina EDU</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    @font-face { font-family: 'Hertical'; src: url('assets/Hertical_Sans_Rough.otf') format('opentype'); }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --blue:#1A3FCC; --blue-dark:#0F2799; --yellow:#FFD700; --cream:#F5F0E8; --gray:#6B7280; --ink:#0D1B5E; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', sans-serif; color: var(--ink); background: var(--cream); overflow-x: hidden; }
+
+    nav { position: fixed; top: 0; left: 0; right: 0; z-index: 200; display: flex; align-items: center; justify-content: space-between; padding: 14px 56px; background: rgba(245,240,232,0.92); backdrop-filter: blur(16px); border-bottom: 1px solid rgba(26,63,204,0.1); }
+    .nav-logo img { height: 44px; }
+    .nav-links { display: flex; gap: 32px; list-style: none; }
+    .nav-links a { text-decoration: none; font-size: 14px; font-weight: 600; color: var(--gray); transition: color 0.2s; }
+    .nav-links a:hover, .nav-links a.active { color: var(--blue); }
+    .nav-cta { background: var(--blue); color: white; padding: 10px 24px; border-radius: 999px; font-size: 13px; font-weight: 700; text-decoration: none; }
+    .nav-hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; }
+    .nav-hamburger span { width: 24px; height: 2px; background: var(--blue); border-radius: 2px; }
+    .mobile-nav { display: none; position: fixed; inset: 0; background: var(--cream); z-index: 300; flex-direction: column; align-items: center; justify-content: center; gap: 36px; }
+    .mobile-nav.open { display: flex; }
+    .mobile-nav a { font-family: 'Hertical', sans-serif; font-size: 36px; color: var(--blue); text-decoration: none; }
+    .mobile-close { position: absolute; top: 24px; right: 28px; font-size: 28px; background: none; border: none; cursor: pointer; color: var(--blue); }
+
+    /* HERO */
+    .comm-hero {
+      min-height: 60vh;
+      background: url('assets/bg-watercolor.png') center/cover no-repeat;
+      display: flex; align-items: center; justify-content: center;
+      text-align: center; padding: 140px 48px 80px;
+      position: relative;
+    }
+    .comm-hero::before { content: ''; position: absolute; inset: 0; background: rgba(245,240,232,0.5); }
+    .comm-hero-content { position: relative; z-index: 2; max-width: 700px; }
+    .eyebrow { font-size: 11px; font-weight: 800; letter-spacing: 4px; text-transform: uppercase; color: var(--blue); margin-bottom: 16px; display: flex; align-items: center; gap: 12px; justify-content: center; }
+    .eyebrow::before, .eyebrow::after { content: ''; width: 40px; height: 1px; background: rgba(26,63,204,0.3); }
+    .comm-hero h1 { font-family: 'Hertical', sans-serif; font-size: clamp(52px,9vw,100px); color: var(--blue-dark); line-height: 0.95; margin-bottom: 24px; }
+    .comm-hero p { font-size: 18px; color: #3a4870; line-height: 1.75; }
+
+    /* INSTAGRAM */
+    .instagram-section { padding: 100px 56px; background: url('assets/bg-watercolor2.png') center/cover no-repeat; position: relative; }
+    .instagram-section::before { content: ''; position: absolute; inset: 0; background: rgba(245,240,232,0.6); }
+    .instagram-inner { max-width: 1140px; margin: 0 auto; position: relative; z-index: 2; }
+    .instagram-section h2 { font-family: 'Hertical', sans-serif; font-size: clamp(36px,5vw,56px); margin-bottom: 8px; }
+    .instagram-section .sub { font-size: 17px; color: var(--gray); margin-bottom: 48px; }
+
+    /* Instagram embed placeholder — replace with real embed script */
+    .instagram-placeholder {
+      background: white; border-radius: 20px; padding: 60px 40px;
+      text-align: center; border: 2px dashed rgba(26,63,204,0.15);
+    }
+    .instagram-placeholder h3 { font-family: 'Hertical', sans-serif; font-size: 28px; color: var(--blue); margin-bottom: 12px; }
+    .instagram-placeholder p { font-size: 15px; color: var(--gray); line-height: 1.7; margin-bottom: 24px; }
+    .instagram-placeholder code { background: rgba(26,63,204,0.07); color: var(--blue); padding: 4px 10px; border-radius: 6px; font-size: 13px; }
+    .insta-btn { display: inline-block; background: linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888); color: white; padding: 14px 32px; border-radius: 999px; font-weight: 700; font-size: 15px; text-decoration: none; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 6px 20px rgba(220,39,67,0.3); margin-top: 8px; }
+    .insta-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(220,39,67,0.4); }
+
+    .sr { opacity: 0; transform: translateY(32px); transition: opacity 0.7s ease, transform 0.7s ease; }
+    .sr.d1 { transition-delay: 0.1s; } .sr.d2 { transition-delay: 0.2s; } .sr.d3 { transition-delay: 0.3s; }
+    .sr.visible { opacity: 1; transform: translateY(0); }
+
+    footer { background: #060e36; padding: 40px 56px; text-align: center; font-size: 14px; color: rgba(255,255,255,0.4); }
+    footer strong { color: white; }
+
+    @media (max-width: 900px) {
+      nav { padding: 14px 20px; } .nav-links,.nav-cta { display: none; } .nav-hamburger { display: flex; }
+      .comm-hero,.instagram-section { padding-left: 20px; padding-right: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="mobile-nav" id="mobileNav">
+  <button class="mobile-close" onclick="closeMobileNav()">X</button>
+  <a href="index.html" onclick="closeMobileNav()">Home</a>
+  <a href="map.html" onclick="closeMobileNav()">STEM Map</a>
+  <a href="board.html" onclick="closeMobileNav()">Drawing Board</a>
+  <a href="articles.html" onclick="closeMobileNav()">Articles</a>
+  <a href="community.html" onclick="closeMobileNav()">Community</a>
+  <a href="apply.html" onclick="closeMobileNav()">How to Submit</a>
+</div>
+
+<nav>
+  <a href="index.html"><img src="assets/logo.png" alt="STEMina" style="height:44px;"/></a>
+  <ul class="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="map.html">STEM Map</a></li>
+    <li><a href="board.html">Drawing Board</a></li>
+    <li><a href="articles.html">Articles</a></li>
+    <li><a href="community.html" class="active">Community</a></li>
+    <li><a href="apply.html">How to Submit</a></li>
+  </ul>
+  <a href="apply.html#portal" class="nav-cta">Submit Your Work</a>
+  <div class="nav-hamburger" onclick="openMobileNav()"><span></span><span></span><span></span></div>
+</nav>
+
+<section class="comm-hero">
+  <div class="comm-hero-content sr">
+    <div class="eyebrow">Join Us</div>
+    <h1>Our Global<br>Community</h1>
+    <p>Connect with students, elders, researchers, and educators from every corner of the world. This is where STEMina comes alive.</p>
+  </div>
+</section>
+
+
+<section class="instagram-section">
+  <div class="instagram-inner">
+    <div class="sr">
+      <h2>Follow us on Instagram</h2>
+      <p class="sub">See the latest from our community — discoveries, drawings, and spotlights.</p>
+    </div>
+
+    <!-- REPLACE THIS BLOCK with your real Instagram embed script when ready -->
+    <div class="instagram-placeholder sr d1">
+      <h3>@STEMina_EDU</h3>
+      <p>Our Instagram feed will appear here once connected. To embed your Instagram feed, add your account handle below and use a free service like Behold.so or LightWidget to generate an embed code.</p>
+      <p style="margin-top:12px;">Your Instagram handle: <code>@STEMina_EDU</code></p>
+      <a href="https://instagram.com" target="_blank" class="insta-btn">View on Instagram</a>
+    </div>
+    <!-- END INSTAGRAM PLACEHOLDER -->
+
+  </div>
+</section>
+
+<footer>
+  <p><strong>STEMina EDU</strong> — Student-Led STEM Initiative &nbsp;|&nbsp; 2025 All rights reserved.</p>
+</footer>
+
+<script>
+  function openMobileNav() { document.getElementById('mobileNav').classList.add('open'); }
+  function closeMobileNav() { document.getElementById('mobileNav').classList.remove('open'); }
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.sr').forEach(el => obs.observe(el));
+</script>
+</body>
+</html>

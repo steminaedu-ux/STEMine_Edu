@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Community Drawing Board | STEMina EDU</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    @font-face { font-family: 'Hertical'; src: url('assets/Hertical_Sans_Rough.otf') format('opentype'); }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --blue:#1A3FCC; --blue-dark:#0F2799; --yellow:#FFD700; --cream:#F5F0E8; --gray:#6B7280; --ink:#0D1B5E; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', sans-serif; color: var(--ink); background: var(--cream); overflow-x: hidden; }
+
+    nav { position: fixed; top: 0; left: 0; right: 0; z-index: 200; display: flex; align-items: center; justify-content: space-between; padding: 14px 56px; background: rgba(245,240,232,0.92); backdrop-filter: blur(16px); border-bottom: 1px solid rgba(26,63,204,0.1); }
+    .nav-logo img { height: 44px; }
+    .nav-links { display: flex; gap: 32px; list-style: none; }
+    .nav-links a { text-decoration: none; font-size: 14px; font-weight: 600; color: var(--gray); transition: color 0.2s; }
+    .nav-links a:hover, .nav-links a.active { color: var(--blue); }
+    .nav-cta { background: var(--blue); color: white; padding: 10px 24px; border-radius: 999px; font-size: 13px; font-weight: 700; text-decoration: none; }
+    .nav-hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; }
+    .nav-hamburger span { width: 24px; height: 2px; background: var(--blue); border-radius: 2px; }
+    .mobile-nav { display: none; position: fixed; inset: 0; background: var(--cream); z-index: 300; flex-direction: column; align-items: center; justify-content: center; gap: 36px; }
+    .mobile-nav.open { display: flex; }
+    .mobile-nav a { font-family: 'Hertical', sans-serif; font-size: 36px; color: var(--blue); text-decoration: none; }
+    .mobile-close { position: absolute; top: 24px; right: 28px; font-size: 28px; background: none; border: none; cursor: pointer; color: var(--blue); }
+
+    /* BOARD PAGE */
+    .board-page {
+      min-height: 100vh;
+      background: url('assets/board-bg.png') center/cover no-repeat fixed;
+      padding: 110px 40px 80px;
+      display: flex; flex-direction: column; align-items: center;
+      position: relative;
+    }
+    .board-page::before {
+      content: ''; position: absolute; inset: 0;
+      background: rgba(245,240,232,0.18);
+    }
+
+    /* HEADER */
+    .board-header {
+      width: 100%; max-width: 1000px;
+      display: flex; align-items: center; gap: 20px;
+      margin-bottom: 6px; position: relative; z-index: 2;
+    }
+    .board-header-line { flex: 1; height: 1.5px; background: rgba(15,39,153,0.4); }
+    .board-header-title {
+      font-family: 'Hertical', sans-serif;
+      font-size: clamp(28px, 5vw, 54px);
+      color: var(--ink); letter-spacing: 2px; white-space: nowrap;
+    }
+    .board-update {
+      font-size: 11px; font-weight: 700; letter-spacing: 3px;
+      color: var(--ink); text-transform: uppercase;
+      text-align: center; margin-bottom: 28px;
+      opacity: 0.55; position: relative; z-index: 2;
+    }
+
+    /* FRAME */
+    .board-frame-outer {
+      width: 100%; max-width: 1000px;
+      position: relative; z-index: 2;
+    }
+    .board-frame {
+      border: 12px solid #c4a878;
+      border-radius: 6px;
+      box-shadow:
+        inset 0 0 0 3px #e0c898,
+        inset 0 0 0 7px #b09060,
+        0 16px 56px rgba(0,0,0,0.22);
+      background: rgba(210,195,175,0.28);
+      backdrop-filter: blur(3px);
+      padding: 36px 32px 44px;
+      min-height: 460px;
+      position: relative;
+    }
+
+    /* GRID — 3x2 rotated slots */
+    .drawings-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(auto-fit, auto);
+      gap: 20px 24px;
+    }
+
+    .drawing-slot {
+      aspect-ratio: 4/3;
+      border-radius: 14px;
+      position: relative;
+      cursor: pointer;
+      transition: transform 0.4s cubic-bezier(.34,1.56,.64,1), box-shadow 0.4s;
+      z-index: 1;
+    }
+    /* Pinned rotations — matches the inspiration image */
+    .drawing-slot:nth-child(6n+1) { transform: rotate(-3.5deg); }
+    .drawing-slot:nth-child(6n+2) { transform: rotate(1.5deg); }
+    .drawing-slot:nth-child(6n+3) { transform: rotate(-1.2deg); }
+    .drawing-slot:nth-child(6n+4) { transform: rotate(2.2deg); }
+    .drawing-slot:nth-child(6n+5) { transform: rotate(-2.5deg); }
+    .drawing-slot:nth-child(6n) { transform: rotate(1.8deg); }
+    .drawing-slot:hover {
+      transform: scale(1.09) rotate(0deg) !important;
+      box-shadow: 0 24px 56px rgba(0,0,0,0.28);
+      z-index: 20;
+    }
+
+    /* Gold pin */
+    .slot-pin {
+      position: absolute; top: -8px; left: 50%; transform: translateX(-50%);
+      width: 14px; height: 14px; border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, #f0d878, #c8a020);
+      box-shadow: 0 3px 6px rgba(0,0,0,0.35);
+      z-index: 5;
+    }
+
+    /* Empty placeholder slot */
+    .slot-empty {
+      width: 100%; height: 100%; border-radius: 14px;
+      background: rgba(195,182,160,0.35);
+      border: 2px dashed rgba(140,120,90,0.4);
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    /* Real image slot */
+    .slot-img {
+      width: 100%; height: 100%; object-fit: cover;
+      border-radius: 14px; display: block;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.22);
+    }
+
+    /* Hover info overlay */
+    .slot-overlay {
+      position: absolute; inset: 0; border-radius: 14px;
+      background: linear-gradient(to top, rgba(15,39,153,0.94) 0%, rgba(15,39,153,0.35) 55%, transparent 100%);
+      opacity: 0; transition: opacity 0.3s;
+      display: flex; flex-direction: column; justify-content: flex-end;
+      padding: 16px 18px;
+    }
+    .drawing-slot:hover .slot-overlay { opacity: 1; }
+    .slot-topic { font-size: 10px; font-weight: 800; letter-spacing: 2px; color: var(--yellow); text-transform: uppercase; margin-bottom: 4px; }
+    .slot-title { font-family: 'Hertical', sans-serif; font-size: 17px; color: white; margin-bottom: 3px; }
+    .slot-author { font-size: 11px; color: rgba(255,255,255,0.65); }
+
+    /* MASCOT — bigger, bottom-right corner */
+    .mascot-corner {
+      position: absolute;
+      bottom: -56px; right: -48px;
+      width: 290px; z-index: 30; cursor: pointer;
+    }
+    .mascot-corner img {
+      width: 100%;
+      filter: drop-shadow(0 12px 28px rgba(0,0,0,0.2));
+      transition: transform 0.4s cubic-bezier(.34,1.56,.64,1);
+    }
+    .mascot-corner:hover img { transform: scale(1.08) rotate(-5deg); }
+
+    /* Fact speech bubble */
+    .fact-bubble {
+      position: absolute; bottom: 250px; right: 16px;
+      width: 250px;
+      background: white;
+      border: 2px solid var(--blue);
+      border-radius: 20px 20px 4px 20px;
+      padding: 16px 18px;
+      box-shadow: 0 10px 32px rgba(26,63,204,0.2);
+      opacity: 0; transform: translateY(14px) scale(0.94);
+      transition: opacity 0.35s, transform 0.35s;
+      pointer-events: none; z-index: 40;
+    }
+    .fact-bubble.show { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
+    .fact-label { font-size: 10px; font-weight: 800; letter-spacing: 2px; color: var(--blue); text-transform: uppercase; margin-bottom: 7px; display: block; }
+    .fact-text { font-size: 13px; color: var(--ink); line-height: 1.6; }
+    .fact-next { display: block; margin-top: 12px; font-size: 11px; color: var(--blue); font-weight: 700; cursor: pointer; letter-spacing: 0.5px; }
+    .fact-next:hover { text-decoration: underline; }
+
+    /* BOARD WEEK NAVIGATION */
+    .board-nav {
+      display: flex; align-items: center; justify-content: center; gap: 20px;
+      margin-top: 28px; position: relative; z-index: 2;
+    }
+    .board-nav-btn {
+      width: 44px; height: 44px; border-radius: 50%;
+      border: 2px solid rgba(15,39,153,0.25);
+      background: white; color: var(--blue-dark);
+      font-size: 18px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+      transition: transform 0.2s, background 0.2s, color 0.2s;
+    }
+    .board-nav-btn:hover:not(:disabled) { background: var(--blue); color: white; transform: scale(1.08); }
+    .board-nav-btn:disabled { opacity: 0.35; cursor: default; }
+    .board-nav-label { font-size: 13px; font-weight: 700; letter-spacing: 1.5px; color: var(--ink); text-transform: uppercase; min-width: 150px; text-align: center; }
+    .board-nav-sub { display: block; font-size: 11px; font-weight: 500; letter-spacing: 0.5px; color: var(--gray); text-transform: none; margin-top: 2px; }
+
+
+    .sr { opacity: 0; transform: translateY(32px); transition: opacity 0.7s ease, transform 0.7s ease; }
+    .sr.visible { opacity: 1; transform: translateY(0); }
+
+    footer { background: #060e36; padding: 40px 56px; text-align: center; font-size: 14px; color: rgba(255,255,255,0.4); }
+    footer strong { color: white; }
+
+    /* SUBMISSION GUIDE — floating button + popup */
+    .guide-fab {
+      position: fixed; bottom: 28px; right: 28px; z-index: 150;
+      display: flex; align-items: center; gap: 8px;
+      background: var(--blue); color: white; border: none; border-radius: 999px;
+      padding: 14px 22px; font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 700;
+      cursor: pointer; box-shadow: 0 10px 30px rgba(26,63,204,0.4);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .guide-fab:hover { transform: translateY(-3px); box-shadow: 0 16px 38px rgba(26,63,204,0.5); }
+    .guide-fab svg { width: 18px; height: 18px; flex-shrink: 0; }
+
+    .guide-overlay {
+      display: none; position: fixed; inset: 0; z-index: 500;
+      background: rgba(13,27,94,0.55); backdrop-filter: blur(4px);
+      align-items: center; justify-content: center; padding: 20px;
+    }
+    .guide-overlay.open { display: flex; }
+    .guide-modal {
+      background: url('assets/bg-watercolor2.png') center/cover no-repeat, white;
+      border-radius: 24px; max-width: 460px; width: 100%; max-height: 88vh; overflow-y: auto;
+      padding: 40px 36px; position: relative; text-align: center;
+      box-shadow: 0 30px 70px rgba(13,27,94,0.35);
+    }
+    .guide-modal::before { content:''; position:absolute; inset:0; border-radius:24px; background: rgba(255,255,255,0.93); }
+    .guide-modal > * { position: relative; z-index: 2; }
+    .guide-close { position: absolute; top: 16px; right: 16px; z-index: 3; background: none; border: none; font-size: 20px; color: var(--gray); cursor: pointer; }
+    .guide-modal .stemina-wordmark { display: inline-block; font-size: 10px; font-weight: 800; letter-spacing: 3px; color: var(--blue); text-transform: uppercase; padding: 6px 16px; border: 2px solid rgba(26,63,204,0.2); border-radius: 999px; margin-bottom: 18px; }
+    .guide-modal h3 { font-family: 'Hertical', sans-serif; font-size: 26px; color: var(--ink); margin-bottom: 10px; line-height: 1.15; }
+    .guide-modal > p.guide-intro { font-size: 14px; color: var(--gray); line-height: 1.7; margin-bottom: 22px; }
+    .guide-section-label { text-align: left; font-size: 11px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; color: var(--blue); margin: 18px 0 10px; }
+    .guide-steps { list-style: none; text-align: left; display: flex; flex-direction: column; gap: 12px; margin-bottom: 4px; }
+    .guide-steps li { display: flex; gap: 12px; align-items: flex-start; font-size: 13.5px; color: #3a4870; line-height: 1.55; }
+    .guide-steps li span.num { font-family: 'Hertical', sans-serif; font-size: 20px; color: rgba(26,63,204,0.25); min-width: 22px; line-height: 1.2; }
+    .guide-criteria { list-style: none; text-align: left; display: flex; flex-direction: column; gap: 8px; margin-bottom: 8px; }
+    .guide-criteria li { display: flex; gap: 10px; align-items: flex-start; font-size: 13.5px; color: #3a4870; line-height: 1.55; }
+    .guide-criteria li::before { content: '✓'; color: var(--blue); font-weight: 800; flex-shrink: 0; }
+    .guide-actions { display: flex; flex-direction: column; gap: 10px; margin-top: 22px; }
+    .guide-btn-primary { background: var(--blue); color: white; padding: 13px 20px; border-radius: 999px; font-weight: 700; font-size: 14px; text-decoration: none; transition: background 0.2s; }
+    .guide-btn-primary:hover { background: var(--blue-dark); }
+    .guide-note { font-size: 12px; color: var(--gray); margin-top: 12px; }
+
+    @media (max-width: 768px) {
+      nav { padding: 14px 20px; } .nav-links,.nav-cta { display: none; } .nav-hamburger { display: flex; }
+      .board-page { padding: 100px 16px 60px; }
+      .drawings-grid { grid-template-columns: repeat(2,1fr); }
+      .mascot-corner { width: 190px; bottom: -30px; right: -16px; }
+      .fact-bubble { width: 190px; bottom: 175px; right: 4px; }
+      .guide-fab { right: 16px; bottom: 16px; padding: 13px 18px; font-size: 13px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="mobile-nav" id="mobileNav">
+  <button class="mobile-close" onclick="closeMobileNav()">X</button>
+  <a href="index.html" onclick="closeMobileNav()">Home</a>
+  <a href="map.html" onclick="closeMobileNav()">STEM Map</a>
+  <a href="board.html" onclick="closeMobileNav()">Drawing Board</a>
+  <a href="articles.html" onclick="closeMobileNav()">Articles</a>
+  <a href="community.html" onclick="closeMobileNav()">Community</a>
+  <a href="apply.html" onclick="closeMobileNav()">How to Submit</a>
+</div>
+
+<nav>
+  <a href="index.html"><img src="assets/logo.png" alt="STEMina" style="height:44px;"/></a>
+  <ul class="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="map.html">STEM Map</a></li>
+    <li><a href="board.html" class="active">Drawing Board</a></li>
+    <li><a href="articles.html">Articles</a></li>
+    <li><a href="community.html">Community</a></li>
+    <li><a href="apply.html">How to Submit</a></li>
+  </ul>
+  <a href="apply.html#portal" class="nav-cta">Submit Your Work</a>
+  <div class="nav-hamburger" onclick="openMobileNav()"><span></span><span></span><span></span></div>
+</nav>
+
+<div class="board-page">
+
+  <div class="board-header sr">
+    <div class="board-header-line"></div>
+    <div class="board-header-title">DISPLAY BOARD</div>
+    <div class="board-header-line"></div>
+  </div>
+  <div class="board-update sr">(Update Every Week)</div>
+
+  <div class="board-frame-outer sr">
+    <div class="board-frame">
+      <div class="drawings-grid" id="drawingsGrid">
+        <!-- Slots are rendered by JavaScript from boardWeeks data below -->
+      </div>
+
+      <!-- MASCOT — bigger size -->
+      <div class="mascot-corner" id="mascotCorner">
+        <img src="assets/mascot.png" alt="STEMina mascot explorer"/>
+        <div class="fact-bubble" id="factBubble">
+          <span class="fact-label">STEM Fact</span>
+          <span class="fact-text" id="factText"></span>
+          <span class="fact-next" onclick="nextFact(event)">Another fact</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="board-nav sr">
+    <button class="board-nav-btn" id="prevWeekBtn" aria-label="Previous board">&lt;</button>
+    <div class="board-nav-label" id="weekLabel">Week 1<span class="board-nav-sub" id="weekSubLabel"></span></div>
+    <button class="board-nav-btn" id="nextWeekBtn" aria-label="Next board">&gt;</button>
+  </div>
+
+</div>
+
+<button class="guide-fab" onclick="openGuideModal()">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+  Add Your Drawing
+</button>
+
+<div class="guide-overlay" id="guideOverlay">
+  <div class="guide-modal">
+    <button class="guide-close" onclick="closeGuideModal()">&#x2715;</button>
+    <span class="stemina-wordmark">Global Showcase</span>
+    <h3>Made something for the board?</h3>
+    <p class="guide-intro">Drawings and STEM-inspired art from students around the world get pinned up here. Here's how to get yours added.</p>
+
+    <div class="guide-section-label">How It Works</div>
+    <ol class="guide-steps">
+      <li><span class="num">01</span><span>Submit a photo of your drawing or artwork via the Google Form below, along with your name and the STEM topic it's inspired by.</span></li>
+      <li><span class="num">02</span><span>Our team reviews it and prepares it for the board.</span></li>
+      <li><span class="num">03</span><span>It gets pinned up for everyone to see — with your name credited as the artist.</span></li>
+    </ol>
+
+    <div class="guide-section-label">What We're Looking For</div>
+    <ul class="guide-criteria">
+      <li>Original artwork — drawn, painted, or created by you</li>
+      <li>Clearly inspired by a STEM concept, cultural science fact, or traditional method</li>
+      <li>A clear photo or scan (good lighting, no blur)</li>
+      <li>Photo file under 3MB, with your drawing centered — the board displays it cropped to a 4:3 frame</li>
+    </ul>
+
+    <div class="guide-actions">
+      <a href="https://docs.google.com/forms/d/e/1FAIpQLSfU6IaSsZlgUCme6CQ5xmwAcFmZHh2rHVZXTdqqklWtqdVKaA/viewform?usp=dialog" target="_blank" rel="noopener" class="guide-btn-primary">Submit via Google Form</a>
+    </div>
+    <p class="guide-note">This is a selective program — be specific in your submission! No need for a high-resolution scan — the board displays drawings fairly small, so a regular phone photo works great.</p>
+  </div>
+</div>
+
+<footer>
+  <p><strong>STEMina EDU</strong> — Student-Led STEM Initiative &nbsp;|&nbsp; 2025 All rights reserved.</p>
+</footer>
+
+<script>
+  function openMobileNav() { document.getElementById('mobileNav').classList.add('open'); }
+  function closeMobileNav() { document.getElementById('mobileNav').classList.remove('open'); }
+
+  function openGuideModal() { document.getElementById('guideOverlay').classList.add('open'); }
+  function closeGuideModal() { document.getElementById('guideOverlay').classList.remove('open'); }
+  document.getElementById('guideOverlay').addEventListener('click', e => {
+    if (e.target.id === 'guideOverlay') closeGuideModal();
+  });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeGuideModal(); });
+
+  const facts = [
+    "Honey never spoils. Archaeologists found 3,000-year-old honey in Egyptian tombs that was still edible.",
+    "Octopuses have three hearts and blue blood. Two pump blood to their gills, one to the rest of the body.",
+    "The Great Wall of China used sticky rice flour in its mortar — an ancient engineering solution.",
+    "A day on Venus is longer than a year on Venus. It rotates so slowly that it completes an orbit first.",
+    "Trees communicate through underground fungal networks. Scientists call this the Wood Wide Web.",
+    "Lightning strikes Earth about 100 times every single second.",
+    "The human body contains enough carbon to make roughly 900 pencils.",
+    "Bananas are slightly radioactive due to potassium-40 — completely safe to eat.",
+    "A snail can sleep for up to 3 years when conditions are too dry.",
+    "The Eiffel Tower grows about 15 cm taller in summer because metal expands in heat.",
+    "Ancient Egyptians used star positions to align the pyramids with extraordinary precision.",
+    "A group of flamingos is called a flamboyance. Their pink colour comes entirely from their diet."
+  ];
+  let factIdx = Math.floor(Math.random() * facts.length);
+
+  function pickNewFactIdx() {
+    if (facts.length <= 1) return 0;
+    let idx;
+    do { idx = Math.floor(Math.random() * facts.length); } while (idx === factIdx);
+    return idx;
+  }
+
+  function showFact() {
+    document.getElementById('factText').textContent = facts[factIdx];
+    document.getElementById('factBubble').classList.add('show');
+  }
+  function hideFact() {
+    document.getElementById('factBubble').classList.remove('show');
+  }
+  function nextFact(e) {
+    e && e.stopPropagation();
+    factIdx = pickNewFactIdx();
+    showFact();
+  }
+
+  const mascot = document.getElementById('mascotCorner');
+
+  // Show a fresh fact every time the mouse enters; hide the moment it leaves
+  mascot.addEventListener('mouseenter', () => {
+    factIdx = pickNewFactIdx();
+    showFact();
+  });
+  mascot.addEventListener('mouseleave', hideFact);
+
+  // Touch devices don't have hover — tap to show/cycle, tap elsewhere to dismiss
+  mascot.addEventListener('click', () => {
+    const b = document.getElementById('factBubble');
+    if (b.classList.contains('show')) { nextFact(); } else { factIdx = pickNewFactIdx(); showFact(); }
+  });
+  document.addEventListener('click', e => {
+    if (!mascot.contains(e.target)) hideFact();
+  });
+
+  // ---- MULTIPLE DISPLAY BOARDS (weeks) — use < > to browse ----
+  // Populated entirely from admin-submitted drawings loaded via Firebase below.
+  const boardWeeks = [];
+
+  // ─── LOAD ADMIN-ADDED DRAWINGS FROM FIREBASE ───
+  // Uses dynamic import() (not type="module") so this stays a classic
+  // script and all the existing onclick="..." handlers keep working.
+  // Google Drive "view" links (the kind you get from Share > Copy link) are
+  // an HTML page, not raw image bytes — an <img> tag can't render them. This
+  // converts them to Drive's direct-image format so they actually display.
+  function toDirectImageUrl(url) {
+    if (!url) return url;
+    const m = url.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/) || url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+    if (m) return `https://drive.google.com/thumbnail?id=${m[1]}&sz=w1000`;
+    return url;
+  }
+
+  async function loadDrawingsFromFirebase() {
+    try {
+      const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js");
+      const { getFirestore, collection, getDocs, query, orderBy } =
+        await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+
+      const app = initializeApp({
+        apiKey: "AIzaSyBhco5CTT1HUWSGhImn2YiTx5oYM8-v_xM",
+        authDomain: "stemina-global-showcase.firebaseapp.com",
+        projectId: "stemina-global-showcase",
+        storageBucket: "stemina-global-showcase.firebasestorage.app",
+        messagingSenderId: "789773985772",
+        appId: "1:789773985772:web:bac19acc7f554a825602c9"
+      });
+      const db = getFirestore(app);
+
+      const q = query(collection(db, 'drawings'), orderBy('createdAt', 'desc'));
+      const snap = await getDocs(q);
+
+      const items = [];
+      snap.forEach(d => {
+        const data = d.data();
+        items.push({
+          title: data.title || 'Untitled',
+          name: data.name || '',
+          author: data.author || '',
+          topic: data.topic || '',
+          image: toDirectImageUrl(data.image || ''),
+          color: 'rgba(190,190,210,0.3)'
+        });
+      });
+      if (items.length === 0) return;
+
+      // Always exactly 3 boards total, newest first. Each board holds up
+      // to 6 slots, so the 3 boards fit the newest 18 submissions — once
+      // there are more than that, the oldest ones drop off entirely.
+      const MAX_BOARDS = 3;
+      const SLOTS_PER_BOARD = 6;
+      const trimmed = items.slice(0, MAX_BOARDS * SLOTS_PER_BOARD);
+
+      const pages = [];
+      for (let i = 0; i < trimmed.length; i += SLOTS_PER_BOARD) pages.push(trimmed.slice(i, i + SLOTS_PER_BOARD));
+
+      const communityWeeks = pages.map((slots, i) => ({
+        label: pages.length === 1 ? 'Community Submissions' : `Community Submissions ${i + 1}`,
+        slots
+      }));
+
+      // If there aren't enough real submissions yet to fill 3 boards,
+      // that's fine — we just show fewer boards (no demo filler content).
+      const remaining = MAX_BOARDS - communityWeeks.length;
+      const fallbackWeeks = remaining > 0 ? boardWeeks.slice(0, remaining) : [];
+
+      boardWeeks.length = 0;
+      boardWeeks.push(...communityWeeks, ...fallbackWeeks);
+    } catch (e) {
+      console.error('Could not load drawings from Firebase:', e);
+    }
+  }
+
+  let currentWeek = 0;
+  const grid = document.getElementById('drawingsGrid');
+  const prevBtn = document.getElementById('prevWeekBtn');
+  const nextBtn = document.getElementById('nextWeekBtn');
+  const weekLabel = document.getElementById('weekLabel');
+  const weekSubLabel = document.getElementById('weekSubLabel');
+
+  function renderWeek(i) {
+    if (boardWeeks.length === 0) {
+      grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--gray);">No submissions yet — check back soon!</div>`;
+      weekLabel.innerHTML = `No Boards Yet`;
+      prevBtn.disabled = true;
+      nextBtn.disabled = true;
+      return;
+    }
+    const week = boardWeeks[i];
+    grid.innerHTML = week.slots.map(s => `
+      <div class="drawing-slot" data-title="${s.title}" data-author="${s.author}" data-topic="${s.topic}">
+        <div class="slot-pin"></div>
+        ${s.image ? `<img class="slot-img" src="${s.image}" alt="${s.title}"/>` : `<div class="slot-empty" style="background:${s.color}"></div>`}
+        <div class="slot-overlay">
+          <div class="slot-topic">${s.topic}</div>
+          <div class="slot-title">${s.title}</div>
+          <div class="slot-author">${[s.name, s.author].filter(Boolean).join(' &middot; ')}</div>
+        </div>
+      </div>
+    `).join('');
+
+    weekLabel.innerHTML = `${week.label}<span class="board-nav-sub">Board ${i + 1} of ${boardWeeks.length}</span>`;
+    prevBtn.disabled = i === 0;
+    nextBtn.disabled = i === boardWeeks.length - 1;
+  }
+
+  prevBtn.addEventListener('click', () => { if (currentWeek > 0) { currentWeek--; renderWeek(currentWeek); } });
+  nextBtn.addEventListener('click', () => { if (currentWeek < boardWeeks.length - 1) { currentWeek++; renderWeek(currentWeek); } });
+
+  renderWeek(currentWeek);
+
+  // Load admin-added drawings, merge them in as the newest week(s), then re-draw
+  loadDrawingsFromFirebase().then(() => {
+    currentWeek = 0; // jump to newest (Community Submissions, if any were added)
+    renderWeek(currentWeek);
+  });
+
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.sr').forEach(el => obs.observe(el));
+</script>
+</body>
+</html>
