@@ -244,8 +244,8 @@
   const today = new Date().toISOString().slice(0,10); // e.g. "2026-07-26"
   setDoc(doc(db, 'analytics', 'siteViews'), {
     total: increment(1),
-    [`daily.${today}`]: increment(1)
-  }, { merge: true }).catch(() => {});
+    daily: { [today]: increment(1) }
+  }, { merge: true }).catch(e => console.error('Visit counter failed:', e));
 </script>
 
 <body>
