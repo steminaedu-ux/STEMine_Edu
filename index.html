@@ -225,6 +225,29 @@
     @media (max-width: 480px) { .benefits-grid { grid-template-columns: 1fr; } }
   </style>
 </head>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getFirestore, doc, setDoc, increment }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBhco5CTT1HUWSGhImn2YiTx5oYM8-v_xM",
+    authDomain: "stemina-global-showcase.firebaseapp.com",
+    projectId: "stemina-global-showcase",
+    storageBucket: "stemina-global-showcase.firebasestorage.app",
+    messagingSenderId: "789773985772",
+    appId: "1:789773985772:web:bac19acc7f554a825602c9"
+  };
+  const db = getFirestore(initializeApp(firebaseConfig));
+
+  const today = new Date().toISOString().slice(0,10); // e.g. "2026-07-26"
+  setDoc(doc(db, 'analytics', 'siteViews'), {
+    total: increment(1),
+    [`daily.${today}`]: increment(1)
+  }, { merge: true }).catch(() => {});
+</script>
+
 <body>
 
 <div class="mobile-nav" id="mobileNav">
