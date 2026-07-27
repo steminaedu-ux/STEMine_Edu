@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>About Us | STEMina EDU</title>
+  <meta name="description" content="STEMina is a youth-led nonprofit making STEM education accessible to children everywhere."/>
+  <meta name="keywords" content="STEM, nonprofit organization, accessible education, youth STEM"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    @font-face { font-family: 'Hertical'; src: url('assets/Hertical_Sans_Rough.otf') format('opentype'); }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --blue:#1A3FCC; --blue-dark:#0F2799; --yellow:#FFD700; --cream:#F5F0E8; --gray:#6B7280; --ink:#0D1B5E; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', sans-serif; color: var(--ink); background: var(--cream); overflow-x: hidden; }
+
+    nav { position: fixed; top: 0; left: 0; right: 0; z-index: 200; display: flex; align-items: center; justify-content: space-between; padding: 14px 56px; background: rgba(245,240,232,0.92); backdrop-filter: blur(16px); border-bottom: 1px solid rgba(26,63,204,0.1); }
+    .nav-logo img { height: 44px; }
+    .nav-links { display: flex; gap: 32px; list-style: none; }
+    .nav-links a { text-decoration: none; font-size: 14px; font-weight: 600; color: var(--gray); transition: color 0.2s; }
+    .nav-links a:hover, .nav-links a.active { color: var(--blue); }
+    .nav-cta { background: var(--blue); color: white; padding: 10px 24px; border-radius: 999px; font-size: 13px; font-weight: 700; text-decoration: none; }
+    .nav-hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; }
+    .nav-hamburger span { width: 24px; height: 2px; background: var(--blue); border-radius: 2px; }
+    .mobile-nav { display: none; position: fixed; inset: 0; background: var(--cream); z-index: 300; flex-direction: column; align-items: center; justify-content: center; gap: 36px; }
+    .mobile-nav.open { display: flex; }
+    .mobile-nav a { font-family: 'Hertical', sans-serif; font-size: 36px; color: var(--blue); text-decoration: none; }
+    .mobile-nav a.mobile-sub { font-size: 22px; opacity: 0.65; }
+    .mobile-close { position: absolute; top: 24px; right: 28px; font-size: 28px; background: none; border: none; cursor: pointer; color: var(--blue); }
+    .nav-dropdown { position: relative; }
+    .nav-dropdown > a::after { content: ' \25BE'; font-size: 9px; margin-left: 3px; }
+    .dropdown-menu { position: absolute; top: 100%; left: 50%; transform: translateX(-50%) translateY(-6px); background: white; border-radius: 14px; padding: 10px; box-shadow: 0 16px 40px rgba(26,63,204,0.18); display: flex; flex-direction: column; gap: 2px; min-width: 200px; opacity: 0; pointer-events: none; transition: opacity 0.2s, transform 0.2s; z-index: 250; }
+    .nav-dropdown:hover .dropdown-menu { opacity: 1; pointer-events: auto; transform: translateX(-50%) translateY(0); }
+    .dropdown-menu a { display: block; padding: 9px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; color: var(--gray); text-decoration: none; transition: background 0.15s, color 0.15s; }
+    .dropdown-menu a:hover, .dropdown-menu a.active { background: rgba(26,63,204,0.07); color: var(--blue); }
+
+    /* HERO */
+    .about-hero {
+      min-height: 55vh;
+      background: url('assets/bg-watercolor2.png') center/cover no-repeat;
+      display: flex; align-items: center; justify-content: center;
+      text-align: center; padding: 140px 48px 70px;
+      position: relative;
+    }
+    .about-hero::before { content: ''; position: absolute; inset: 0; background: rgba(245,240,232,0.5); }
+    .about-hero-content { position: relative; z-index: 2; max-width: 700px; }
+    .eyebrow { font-size: 11px; font-weight: 800; letter-spacing: 4px; text-transform: uppercase; color: var(--blue); margin-bottom: 16px; display: flex; align-items: center; gap: 12px; justify-content: center; }
+    .eyebrow::before, .eyebrow::after { content: ''; width: 40px; height: 1px; background: rgba(26,63,204,0.3); }
+    .about-hero h1 { font-family: 'Hertical', sans-serif; font-size: clamp(52px,9vw,100px); color: var(--blue-dark); line-height: 0.95; margin-bottom: 24px; }
+    .about-hero p { font-size: 18px; color: #3a4870; line-height: 1.75; }
+
+    /* MISSION-STYLE CONTENT SECTIONS */
+    .paper-section { position: relative; padding: 90px 56px; background: url('assets/bg-watercolor.png') center/cover no-repeat; }
+    .paper-section::before { content: ''; position: absolute; inset: 0; background: rgba(245,240,232,0.55); }
+    .paper-inner { position: relative; z-index: 2; max-width: 1140px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; }
+    .paper-inner.reverse { grid-template-columns: 1fr 1fr; }
+    .paper-inner.reverse .paper-card { order: 2; }
+    .paper-inner.reverse .mission-visual { order: 1; }
+    .paper-card { background: rgba(255,255,255,0.85); border-radius: 24px; padding: 48px 44px; box-shadow: 0 20px 50px rgba(26,63,204,0.08); }
+    .section-eyebrow { font-size: 10px; font-weight: 800; letter-spacing: 4px; text-transform: uppercase; color: var(--blue); margin-bottom: 14px; display: flex; align-items: center; gap: 10px; }
+    .section-eyebrow::after { content: ''; flex: 1; height: 1px; background: rgba(26,63,204,0.2); }
+    .section-title { font-family: 'Hertical', sans-serif; font-size: clamp(32px, 4.2vw, 50px); line-height: 1.08; color: var(--ink); margin-bottom: 20px; }
+    .section-body { font-size: 16px; color: #4a5270; line-height: 1.8; }
+    .section-body + .section-body { margin-top: 16px; }
+    .mission-pills { display: flex; flex-direction: column; gap: 14px; margin-top: 32px; }
+    .mission-pill { display: flex; gap: 14px; align-items: flex-start; padding: 16px 18px; background: rgba(255,255,255,0.7); border-radius: 12px; border-left: 3px solid var(--blue); }
+    .pill-text strong { display: block; font-size: 13px; font-weight: 700; color: var(--blue); margin-bottom: 3px; }
+    .pill-text p { font-size: 13px; color: var(--gray); line-height: 1.5; }
+
+    .mission-visual { background: var(--blue); border-radius: 24px; padding: 44px 36px; text-align: center; position: relative; overflow: hidden; }
+    .mission-visual::before { content: ''; position: absolute; right: -20px; top: -20px; width: 200px; height: 200px; border-radius: 50%; background: rgba(255,215,0,0.08); }
+    .mission-logo { width: 200px; margin: 0 auto 26px; display: block; }
+    .mission-quote { font-family: 'Hertical', sans-serif; font-size: 24px; color: white; line-height: 1.3; position: relative; z-index: 2; }
+    .mission-quote em { color: var(--yellow); font-style: normal; }
+    .mission-sub { font-size: 13px; color: rgba(255,255,255,0.5); margin-top: 12px; letter-spacing: 1px; position: relative; z-index: 2; }
+
+    /* FOLLOW / SUPPORT CTA */
+    .support-section { padding: 100px 56px; text-align: center; background: var(--blue-dark); position: relative; overflow: hidden; }
+    .support-section::before { content: ''; position: absolute; top: -100px; right: -100px; width: 500px; height: 500px; border-radius: 50%; background: rgba(255,215,0,0.04); }
+    .support-inner { position: relative; z-index: 2; max-width: 620px; margin: 0 auto; }
+    .support-section h2 { font-family: 'Hertical', sans-serif; font-size: clamp(32px,5vw,52px); color: white; margin-bottom: 16px; line-height: 1.1; }
+    .support-section p { font-size: 16px; color: rgba(255,255,255,0.6); line-height: 1.75; margin-bottom: 36px; }
+    .support-buttons { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; }
+    .btn-primary { background: var(--blue); color: white; padding: 16px 40px; border-radius: 999px; font-weight: 700; font-size: 15px; text-decoration: none; box-shadow: 0 8px 28px rgba(26,63,204,0.35); transition: transform 0.25s, box-shadow 0.25s; }
+    .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 14px 36px rgba(26,63,204,0.45); }
+    .btn-outline-light { background: rgba(255,255,255,0.08); border: 2px solid rgba(255,255,255,0.25); color: white; padding: 16px 40px; border-radius: 999px; font-weight: 700; font-size: 15px; text-decoration: none; transition: background 0.25s, border-color 0.25s; }
+    .btn-outline-light:hover { background: rgba(255,255,255,0.18); border-color: rgba(255,255,255,0.4); }
+
+    .sr { opacity: 0; transform: translateY(32px); transition: opacity 0.7s ease, transform 0.7s ease; }
+    .sr.d1 { transition-delay: 0.1s; } .sr.d2 { transition-delay: 0.2s; }
+    .sr.visible { opacity: 1; transform: translateY(0); }
+
+    footer { background: #060e36; padding: 40px 56px; text-align: center; font-size: 14px; color: rgba(255,255,255,0.4); }
+    footer strong { color: white; }
+
+    @media (max-width: 900px) {
+      nav { padding: 14px 20px; } .nav-links,.nav-cta { display: none; } .nav-hamburger { display: flex; }
+      .about-hero,.paper-section,.support-section { padding-left: 20px; padding-right: 20px; }
+      .paper-inner,.paper-inner.reverse { grid-template-columns: 1fr; gap: 32px; }
+      .paper-inner.reverse .paper-card,.paper-inner.reverse .mission-visual { order: initial; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="mobile-nav" id="mobileNav">
+  <button class="mobile-close" onclick="closeMobileNav()">X</button>
+  <a href="home.html" onclick="closeMobileNav()">Home</a>
+  <a href="about.html" onclick="closeMobileNav()">About</a>
+  <a href="community.html" onclick="closeMobileNav()">Community</a>
+  <a href="index.html" onclick="closeMobileNav()">Global Showcase</a>
+  <a href="map.html" class="mobile-sub" onclick="closeMobileNav()">STEM Map</a>
+  <a href="board.html" class="mobile-sub" onclick="closeMobileNav()">Drawing Board</a>
+  <a href="articles.html" class="mobile-sub" onclick="closeMobileNav()">Articles</a>
+  <a href="apply.html" class="mobile-sub" onclick="closeMobileNav()">How to Submit</a>
+</div>
+
+<nav>
+  <a href="home.html"><img src="assets/logo.png" alt="STEMina" style="height:44px;"/></a>
+  <ul class="nav-links">
+    <li><a href="home.html">Home</a></li>
+    <li><a href="about.html" class="active">About</a></li>
+    <li><a href="community.html">Community</a></li>
+    <li class="nav-dropdown">
+      <a href="index.html">Global Showcase</a>
+      <div class="dropdown-menu">
+        <a href="map.html">Global STEM Map</a>
+        <a href="board.html">Drawing Board</a>
+        <a href="articles.html">Articles</a>
+        <a href="apply.html">How to Submit</a>
+      </div>
+    </li>
+  </ul>
+  <a href="apply.html#portal" class="nav-cta">Submit Your Work</a>
+  <div class="nav-hamburger" onclick="openMobileNav()"><span></span><span></span><span></span></div>
+</nav>
+
+<!-- HERO -->
+<section class="about-hero">
+  <div class="about-hero-content sr">
+    <div class="eyebrow">About Us</div>
+    <h1>Who We Are</h1>
+    <p>STEMina is a youth-led nonprofit working to make STEM education accessible to every child, everywhere.</p>
+  </div>
+</section>
+
+<!-- WHO WE ARE -->
+<section class="paper-section">
+  <div class="paper-inner">
+    <div class="sr">
+      <div class="paper-card">
+        <div class="section-eyebrow">Who We Are</div>
+        <h2 class="section-title">A youth-led nonprofit organization</h2>
+        <p class="section-body">Hi! We're STEMina, a youth-led nonprofit organization.</p>
+        <p class="section-body">We started this nonprofit because we noticed a disparity in accessible education across the world. The reality is that many children don't receive the same level of education as others. We hope to rewrite that story for countless individuals by building a community that is actively involved in advocacy for accessible education.</p>
+      </div>
+    </div>
+    <div class="mission-visual sr d2">
+      <img src="assets/logo2.png" alt="STEMina Logo" class="mission-logo"/>
+      <div class="mission-quote" style="font-size:18px;color:rgba(255,255,255,0.85);">A youth-led nonprofit, working toward a world where every child has access to STEM education.</div>
+      <div class="mission-sub">Student-Led STEM Initiative</div>
+    </div>
+  </div>
+</section>
+
+<!-- OUR VISION -->
+<section class="paper-section" style="background-image:url('assets/bg-watercolor2.png');">
+  <div class="paper-inner reverse">
+    <div class="sr">
+      <div class="paper-card">
+        <div class="section-eyebrow">Our Vision</div>
+        <h2 class="section-title">What we're going to do</h2>
+        <p class="section-body">STEMina offers free education tools for children who want to pursue STEM fields. Through providing online courses, we aim to eliminate geographical barriers and make STEM education more accessible.</p>
+        <p class="section-body">As we continue to develop our nonprofit, we will be hosting workshops and will keep you informed regarding future dates!</p>
+        <div class="mission-pills">
+          <div class="mission-pill"><div class="pill-text"><strong>Eliminate Barriers</strong><p>Free STEM tools that reach children no matter where in the world they are.</p></div></div>
+          <div class="mission-pill"><div class="pill-text"><strong>Online Courses</strong><p>Accessible learning for any child pursuing STEM — no cost, no limits.</p></div></div>
+          <div class="mission-pill"><div class="pill-text"><strong>Workshops Coming Soon</strong><p>Live workshops in development. Follow us to stay informed!</p></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="sr d2" style="background:white;border-radius:24px;padding:44px 36px;box-shadow:0 20px 50px rgba(26,63,204,0.08);display:flex;flex-direction:column;justify-content:center;gap:20px;">
+      <div class="stat" style="border-right:none;text-align:left;padding:0;">
+        <div class="section-eyebrow" style="margin-bottom:4px;">Free, Always</div>
+        <p class="section-body">Every course and tool STEMina offers is free — and will stay that way.</p>
+      </div>
+      <div class="stat" style="border-right:none;text-align:left;padding:0;">
+        <div class="section-eyebrow" style="margin-bottom:4px;">Geography-Blind</div>
+        <p class="section-body">Online delivery means no child is excluded because of where they live.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SUPPORT / FOLLOW -->
+<section class="support-section">
+  <div class="support-inner sr">
+    <h2>Help us grow</h2>
+    <p>To aid our nonprofit, we would greatly appreciate your support by following our page and staying in the loop on upcoming workshops.</p>
+    <div class="support-buttons">
+      <a href="https://www.instagram.com/stemina_edu/" target="_blank" rel="noopener" class="btn-primary">Follow on Instagram</a>
+      <a href="community.html" class="btn-outline-light">Join the Community</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p><strong>STEMina EDU</strong> — Student-Led STEM Initiative &nbsp;|&nbsp; 2025 All rights reserved.</p>
+</footer>
+
+<script>
+  function openMobileNav() { document.getElementById('mobileNav').classList.add('open'); }
+  function closeMobileNav() { document.getElementById('mobileNav').classList.remove('open'); }
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.sr').forEach(el => obs.observe(el));
+</script>
+</body>
+</html>

@@ -147,27 +147,6 @@
     .badge-blue { background:rgba(26,63,204,0.1); color:var(--blue); }
     .badge-green { background:rgba(15,158,110,0.1); color:var(--green); }
 
-    /* ── ANALYTICS ── */
-    .stat-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:18px; margin-bottom:32px; }
-    .stat-card { background:white; border-radius:16px; padding:22px 20px; box-shadow:0 4px 20px rgba(26,63,204,0.06); }
-    .stat-card .stat-value { font-family:'Hertical',sans-serif; font-size:34px; color:var(--blue-dark); line-height:1; }
-    .stat-card .stat-label { font-size:11px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--gray); margin-top:8px; }
-    .stat-card.accent-green .stat-value { color:var(--green); }
-    .analytics-grid { display:grid; grid-template-columns:1fr 1fr; gap:24px; }
-    .analytics-card { background:white; border-radius:20px; padding:28px; box-shadow:0 4px 20px rgba(26,63,204,0.06); }
-    .analytics-card.full-width { grid-column:1 / -1; }
-    .analytics-card h3 { font-size:15px; font-weight:700; color:var(--ink); margin-bottom:18px; }
-    .bar-row { margin-bottom:14px; }
-    .bar-row:last-child { margin-bottom:0; }
-    .bar-row-top { display:flex; justify-content:space-between; font-size:13px; margin-bottom:5px; }
-    .bar-row-top .bar-label { font-weight:600; color:var(--ink); }
-    .bar-row-top .bar-count { color:var(--gray); font-weight:600; }
-    .bar-track { background:rgba(26,63,204,0.08); border-radius:999px; height:8px; overflow:hidden; }
-    .bar-fill { height:100%; border-radius:999px; background:var(--blue); transition:width 0.4s ease; }
-    .bar-fill.green { background:var(--green); }
-    .bar-fill.yellow { background:#E0B400; }
-    @media(max-width:768px) { .stat-grid { grid-template-columns:repeat(2,1fr); } .analytics-grid { grid-template-columns:1fr; } }
-
     @media(max-width:768px) { .panel-grid { grid-template-columns:1fr; } .admin-body { padding:24px 16px; } }
   </style>
 </head>
@@ -208,7 +187,6 @@
       <button class="tab-btn active" onclick="switchTab('articles')">Articles</button>
       <button class="tab-btn" onclick="switchTab('drawings')">Drawing Board</button>
       <button class="tab-btn" onclick="switchTab('mapfacts')">Map Facts</button>
-      <button class="tab-btn" onclick="switchTab('analytics')">Analytics</button>
       <button class="tab-btn" id="teamTabBtn" onclick="switchTab('team')" style="display:none;">Team</button>
     </div>
 
@@ -356,47 +334,6 @@
             <input type="text" class="search-box" id="m-search" placeholder="Search by country, type, or tag..." oninput="filterList('mapfactsList','m-search')"/>
           </div>
           <div id="mapfactsList"><div class="loading">Loading...</div></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ANALYTICS TAB -->
-    <div class="tab-panel" id="tab-analytics">
-      <div class="stat-grid">
-        <div class="stat-card"><div class="stat-value" id="stat-articles">–</div><div class="stat-label">Articles</div></div>
-        <div class="stat-card"><div class="stat-value" id="stat-drawings">–</div><div class="stat-label">Drawings</div></div>
-        <div class="stat-card"><div class="stat-value" id="stat-mapfacts">–</div><div class="stat-label">Map Facts</div></div>
-        <div class="stat-card accent-green"><div class="stat-value" id="stat-visits">–</div><div class="stat-label">Site Visits (all time)</div></div>
-      </div>
-
-      <div class="analytics-grid">
-        <div class="analytics-card">
-          <h3>Articles by Format</h3>
-          <div id="chart-a-format"><div class="loading">Loading...</div></div>
-        </div>
-        <div class="analytics-card">
-          <h3>Articles by Category</h3>
-          <div id="chart-a-category"><div class="loading">Loading...</div></div>
-        </div>
-        <div class="analytics-card">
-          <h3>Map Facts by Type</h3>
-          <div id="chart-m-type"><div class="loading">Loading...</div></div>
-        </div>
-        <div class="analytics-card">
-          <h3>Drawings by STEM Topic</h3>
-          <div id="chart-d-topic"><div class="loading">Loading...</div></div>
-        </div>
-        <div class="analytics-card">
-          <h3>Top Countries (Articles)</h3>
-          <div id="chart-a-country"><div class="loading">Loading...</div></div>
-        </div>
-        <div class="analytics-card">
-          <h3>Top Contributors (Map Facts)</h3>
-          <div id="chart-m-contributor"><div class="loading">Loading...</div></div>
-        </div>
-        <div class="analytics-card full-width">
-          <h3>Site Visits — Last 14 Days</h3>
-          <div id="chart-visits-daily"><div class="loading">Loading...</div></div>
         </div>
       </div>
     </div>
@@ -562,12 +499,11 @@
   // ── TABS ──
   window.switchTab = (name) => {
     document.querySelectorAll('.tab-btn').forEach((b,i) => {
-      b.classList.toggle('active', ['articles','drawings','mapfacts','analytics','team'][i] === name);
+      b.classList.toggle('active', ['articles','drawings','mapfacts','team'][i] === name);
     });
     document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
     document.getElementById(`tab-${name}`).classList.add('active');
     if (name === 'team') loadTeam();
-    if (name === 'analytics') loadAnalytics();
   };
 
   // ── LOAD ALL ──
@@ -1012,79 +948,6 @@
       loadMapFacts();
     } catch(e) { toast(e.message,'error'); }
   };
-
-  // ── ANALYTICS ──
-  // Renders a simple horizontal bar chart into a container, from a
-  // { label: count } object, sorted highest-first. `colorClass` is an
-  // optional modifier on .bar-fill ('green' | 'yellow' | '' for default blue).
-  function renderBarList(containerId, counts, colorClass = '', limit = 8, emptyText = 'No data yet.', sort = true) {
-    const el = document.getElementById(containerId);
-    if (!el) return;
-    let entries = Object.entries(counts).filter(([k]) => k);
-    if (sort) entries = entries.sort((a,b) => b[1]-a[1]);
-    entries = entries.slice(0, limit);
-    if (entries.length === 0) { el.innerHTML = `<div class="list-empty" style="padding:12px 0;">${emptyText}</div>`; return; }
-    const max = Math.max(...entries.map(e => e[1]), 1);
-    el.innerHTML = entries.map(([label, count]) => `
-      <div class="bar-row">
-        <div class="bar-row-top"><span class="bar-label">${label}</span><span class="bar-count">${count}</span></div>
-        <div class="bar-track"><div class="bar-fill ${colorClass}" style="width:${Math.max(4, Math.round(count/max*100))}%"></div></div>
-      </div>`).join('');
-  }
-
-  function tally(cache, field, fallback = null) {
-    const counts = {};
-    Object.values(cache).forEach(data => {
-      let val = data[field];
-      if (!val && fallback) val = fallback(data);
-      if (!val) return;
-      counts[val] = (counts[val] || 0) + 1;
-    });
-    return counts;
-  }
-
-  async function loadAnalytics() {
-    // Content counts + breakdowns come from data already loaded for the
-    // other tabs (loadAll() runs on sign-in), so this is instant and free.
-    document.getElementById('stat-articles').textContent = Object.keys(articlesCache).length;
-    document.getElementById('stat-drawings').textContent = Object.keys(drawingsCache).length;
-    document.getElementById('stat-mapfacts').textContent = Object.keys(mapfactsCache).length;
-
-    renderBarList('chart-a-format', tally(articlesCache, 'format'));
-    renderBarList('chart-a-category', tally(articlesCache, 'category'));
-    renderBarList('chart-a-country', tally(articlesCache, 'country'));
-    renderBarList('chart-m-type', tally(mapfactsCache, 'type'), 'yellow');
-    renderBarList('chart-m-contributor', tally(mapfactsCache, 'contributor'), 'yellow');
-    renderBarList('chart-d-topic', tally(drawingsCache, 'topic'), 'green');
-
-    // Site visits — written by a small counter script on the public site
-    // (index.html), stored at analytics/siteViews as { total, daily: {date: count} }.
-    try {
-      const snap = await getDoc(doc(db, 'analytics', 'siteViews'));
-      if (snap.exists()) {
-        const data = snap.data();
-        document.getElementById('stat-visits').textContent = data.total || 0;
-
-        const daily = data.daily || {};
-        const days = [];
-        for (let i = 13; i >= 0; i--) {
-          const d = new Date();
-          d.setDate(d.getDate() - i);
-          const key = d.toISOString().slice(0,10);
-          const label = d.toLocaleDateString(undefined, { month:'short', day:'numeric' });
-          days.push([label, daily[key] || 0]);
-        }
-        renderBarList('chart-visits-daily', Object.fromEntries(days), '', 14, 'No visit data yet — add the tracking snippet to index.html.', false);
-      } else {
-        document.getElementById('stat-visits').textContent = '0';
-        document.getElementById('chart-visits-daily').innerHTML =
-          '<div class="list-empty" style="padding:12px 0;">No visit data yet — add the tracking snippet to index.html.</div>';
-      }
-    } catch(e) {
-      document.getElementById('stat-visits').textContent = '–';
-      document.getElementById('chart-visits-daily').innerHTML = `<div class="list-empty">Error: ${e.message}</div>`;
-    }
-  }
 
   // ── DELETE ──
   window.deleteItem = async (colName, id, reloadFn) => {
