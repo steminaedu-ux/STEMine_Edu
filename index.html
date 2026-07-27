@@ -39,7 +39,14 @@
     .mobile-nav { display: none; position: fixed; inset: 0; background: var(--cream); z-index: 400; flex-direction: column; align-items: center; justify-content: center; gap: 36px; }
     .mobile-nav.open { display: flex; }
     .mobile-nav a { font-family: 'Hertical', sans-serif; font-size: 36px; color: var(--blue); text-decoration: none; }
+    .mobile-nav a.mobile-sub { font-size: 22px; opacity: 0.65; }
     .mobile-close { position: absolute; top: 24px; right: 28px; font-size: 28px; background: none; border: none; cursor: pointer; color: var(--blue); }
+    .nav-dropdown { position: relative; }
+    .nav-dropdown > a::after { content: ' \25BE'; font-size: 9px; margin-left: 3px; }
+    .dropdown-menu { position: absolute; top: 100%; left: 50%; transform: translateX(-50%) translateY(-6px); background: white; border-radius: 14px; padding: 10px; box-shadow: 0 16px 40px rgba(26,63,204,0.18); display: flex; flex-direction: column; gap: 2px; min-width: 200px; opacity: 0; pointer-events: none; transition: opacity 0.2s, transform 0.2s; z-index: 250; }
+    .nav-dropdown:hover .dropdown-menu { opacity: 1; pointer-events: auto; transform: translateX(-50%) translateY(0); }
+    .dropdown-menu a { display: block; padding: 9px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; color: var(--gray); text-decoration: none; transition: background 0.15s, color 0.15s; }
+    .dropdown-menu a:hover, .dropdown-menu a.active { background: rgba(26,63,204,0.07); color: var(--blue); }
 
     /* HERO */
     .hero {
@@ -100,6 +107,7 @@
     }
     .paper-section::before { content: ''; position: absolute; inset: 0; background: rgba(245,240,232,0.55); }
     .paper-inner { position: relative; z-index: 2; max-width: 1140px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; }
+    .quote-banner-inner { position: relative; z-index: 2; max-width: 640px; margin: 0 auto; }
     .paper-card { background: rgba(255,255,255,0.85); border-radius: 24px; padding: 48px 44px; box-shadow: 0 20px 50px rgba(26,63,204,0.08); }
     .section-eyebrow { font-size: 10px; font-weight: 800; letter-spacing: 4px; text-transform: uppercase; color: var(--blue); margin-bottom: 14px; display: flex; align-items: center; gap: 10px; }
     .section-eyebrow::after { content: ''; flex: 1; height: 1px; background: rgba(26,63,204,0.2); }
@@ -225,50 +233,35 @@
     @media (max-width: 480px) { .benefits-grid { grid-template-columns: 1fr; } }
   </style>
 </head>
-
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getFirestore, doc, setDoc, increment }
-    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
-  const firebaseConfig = {
-    apiKey: "AIzaSyBhco5CTT1HUWSGhImn2YiTx5oYM8-v_xM",
-    authDomain: "stemina-global-showcase.firebaseapp.com",
-    projectId: "stemina-global-showcase",
-    storageBucket: "stemina-global-showcase.firebasestorage.app",
-    messagingSenderId: "789773985772",
-    appId: "1:789773985772:web:bac19acc7f554a825602c9"
-  };
-  const db = getFirestore(initializeApp(firebaseConfig));
-
-  const today = new Date().toISOString().slice(0,10); // e.g. "2026-07-26"
-  setDoc(doc(db, 'analytics', 'siteViews'), {
-    total: increment(1),
-    daily: { [today]: increment(1) }
-  }, { merge: true }).catch(e => console.error('Visit counter failed:', e));
-</script>
-
 <body>
 
 <div class="mobile-nav" id="mobileNav">
   <button class="mobile-close" onclick="closeMobileNav()">X</button>
-  <a href="index.html" onclick="closeMobileNav()">Home</a>
-  <a href="map.html" onclick="closeMobileNav()">STEM Map</a>
-  <a href="board.html" onclick="closeMobileNav()">Drawing Board</a>
-  <a href="articles.html" onclick="closeMobileNav()">Articles</a>
+  <a href="home.html" onclick="closeMobileNav()">Home</a>
+  <a href="about.html" onclick="closeMobileNav()">About</a>
   <a href="community.html" onclick="closeMobileNav()">Community</a>
-  <a href="apply.html" onclick="closeMobileNav()">How to Submit</a>
+  <a href="index.html" onclick="closeMobileNav()">Global Showcase</a>
+  <a href="map.html" class="mobile-sub" onclick="closeMobileNav()">STEM Map</a>
+  <a href="board.html" class="mobile-sub" onclick="closeMobileNav()">Drawing Board</a>
+  <a href="articles.html" class="mobile-sub" onclick="closeMobileNav()">Articles</a>
+  <a href="apply.html" class="mobile-sub" onclick="closeMobileNav()">How to Submit</a>
 </div>
 
 <nav id="mainNav">
-  <a href="index.html" class="nav-logo"><img src="assets/logo.png" alt="STEMina EDU"/></a>
+  <a href="home.html" class="nav-logo"><img src="assets/logo.png" alt="STEMina EDU"/></a>
   <ul class="nav-links">
-    <li><a href="index.html" class="active">Home</a></li>
-    <li><a href="map.html">STEM Map</a></li>
-    <li><a href="board.html">Drawing Board</a></li>
-    <li><a href="articles.html">Articles</a></li>
+    <li><a href="home.html">Home</a></li>
+    <li><a href="about.html">About</a></li>
     <li><a href="community.html">Community</a></li>
-    <li><a href="apply.html">How to Submit</a></li>
+    <li class="nav-dropdown">
+      <a href="index.html" class="active">Global Showcase</a>
+      <div class="dropdown-menu">
+        <a href="map.html">Global STEM Map</a>
+        <a href="board.html">Drawing Board</a>
+        <a href="articles.html">Articles</a>
+        <a href="apply.html">How to Submit</a>
+      </div>
+    </li>
   </ul>
   <a href="apply.html#portal" class="nav-cta">Submit Your Work</a>
   <div class="nav-hamburger" onclick="openMobileNav()"><span></span><span></span><span></span></div>
@@ -277,49 +270,17 @@
 <!-- HERO -->
 <section class="hero" aria-label="Hero">
   <div class="hero-content">
-    <div class="stemina-wordmark">Student-Led STEM Initiative</div>
+    <div class="stemina-wordmark">STEMina EDU</div>
     <h1>The Global<br><em>Showcase</em></h1>
-    <div class="hero-divider"><span>STEMina EDU</span></div>
-    <p>A youth-led nonprofit breaking down barriers to STEM education worldwide — every student, every story, every discovery deserves to be seen.</p>
+    <div class="hero-divider"><span>Explore. Create. Be Seen.</span></div>
+    <p>An interactive platform for STEM stories from every corner of the world — an explorable map, a community drawing board, and articles worth discovering. Every student, every story, every discovery deserves to be seen.</p>
     <div class="hero-buttons">
       <a href="apply.html#portal" class="btn-primary">Submit Your Work</a>
-      <a href="#mission" class="btn-outline">Our Mission</a>
+      <a href="home.html" class="btn-outline">STEMina Home</a>
     </div>
   </div>
   <div class="island-wrap" id="islandWrap">
     <img src="assets/island.png" alt="Watercolour tropical island"/>
-  </div>
-</section>
-
-<!-- STATS -->
-<div class="stats-bar">
-  <div class="stat sr"><div class="stat-num">All Ages</div><div class="stat-lbl">Welcome</div></div>
-  <div class="stat sr d1"><div class="stat-num">2</div><div class="stat-lbl">Showcase Tracks</div></div>
-  <div class="stat sr d2"><div class="stat-num">Global</div><div class="stat-lbl">Worldwide Platform</div></div>
-  <div class="stat sr d3"><div class="stat-num">Free</div><div class="stat-lbl">Always and Forever</div></div>
-</div>
-
-<!-- MISSION -->
-<section class="paper-section" id="mission">
-  <div class="paper-inner">
-    <div class="sr">
-      <div class="paper-card">
-        <div class="section-eyebrow">Who We Are</div>
-        <h2 class="section-title">Rewriting the story of accessible education</h2>
-        <p class="section-body">We're STEMina — a youth-led nonprofit that noticed a disparity in accessible education across the world. Many children don't receive the same level of education as others. We're here to change that by building a global community advocating for accessible STEM education.</p>
-        <div class="mission-pills">
-          <div class="mission-pill"><div class="pill-text"><strong>Our Vision</strong><p>Eliminate geographical barriers. Make STEM free and accessible to every child, everywhere.</p></div></div>
-          <div class="mission-pill"><div class="pill-text"><strong>Free Online Courses</strong><p>Education tools available to any child pursuing STEM — no cost, no limits.</p></div></div>
-          <div class="mission-pill"><div class="pill-text"><strong>Workshops Coming Soon</strong><p>Live workshops in development. Follow us to stay informed!</p></div></div>
-        </div>
-      </div>
-    </div>
-    <div class="mission-visual sr d2">
-      <!-- logo2 is the horizontal version, better suited for this wider card -->
-      <img src="assets/logo2.png" alt="STEMina Logo" class="mission-logo"/>
-      <div class="mission-quote">"Building <em>STEMina</em><br>for the Future"</div>
-      <div class="mission-sub">Student-Led STEM Initiative</div>
-    </div>
   </div>
 </section>
 
@@ -329,7 +290,7 @@
     <div class="explore-header sr">
       <div class="section-eyebrow">Explore the Platform</div>
       <h2 class="section-title">Everything in one place</h2>
-      <p style="font-size:17px;color:var(--gray);line-height:1.75;max-width:520px;margin-top:12px;">From an interactive global STEM map to a community drawing board — dive into everything STEMina has built for you.</p>
+      <p style="font-size:17px;color:var(--gray);line-height:1.75;max-width:520px;margin-top:12px;">From an interactive global STEM map to a community drawing board — dive into everything the Global Showcase has to offer.</p>
     </div>
     <div class="cards-grid">
       <a href="map.html" class="explore-card sr d1"><div class="card-top g1"></div><div class="card-body"><div class="card-eyebrow">Explore</div><div class="card-title">Global STEM Map</div><p class="card-desc">Click any country to discover unique science facts and traditional STEM methods from that region.</p></div></a>
@@ -341,6 +302,14 @@
     </div>
   </div>
 </section>
+
+<!-- STATS -->
+<div class="stats-bar">
+  <div class="stat sr"><div class="stat-num">All Ages</div><div class="stat-lbl">Welcome</div></div>
+  <div class="stat sr d1"><div class="stat-num">2</div><div class="stat-lbl">Showcase Tracks</div></div>
+  <div class="stat sr d2"><div class="stat-num">Global</div><div class="stat-lbl">Worldwide Platform</div></div>
+  <div class="stat sr d3"><div class="stat-num">Free</div><div class="stat-lbl">Always and Forever</div></div>
+</div>
 
 <!-- WHO WE SERVE -->
 <section class="serve-section">
@@ -405,7 +374,7 @@
   <div class="footer-inner">
     <div>
       <div class="footer-logo"><img src="assets/logo.png" alt="STEMina EDU"/></div>
-      <p class="footer-desc">A youth-led nonprofit making STEM education accessible to every child, everywhere — for free.</p>
+      <p class="footer-desc">The Global Showcase — an interactive platform for STEM stories, drawings, and discoveries from every corner of the world.</p>
     </div>
     <div class="footer-col">
       <h4>Platform</h4>
@@ -413,15 +382,15 @@
         <li><a href="map.html">Global STEM Map</a></li>
         <li><a href="board.html">Drawing Board</a></li>
         <li><a href="articles.html">Articles</a></li>
-        <li><a href="community.html">Community</a></li>
+        <li><a href="apply.html">How to Submit</a></li>
       </ul>
     </div>
     <div class="footer-col">
-      <h4>Contribute</h4>
+      <h4>STEMina EDU</h4>
       <ul>
-        <li><a href="apply.html#portal">Submit Your Work</a></li>
-        <li><a href="apply.html">Global Showcase</a></li>
-        <li><a href="community.html">Join Discord</a></li>
+        <li><a href="home.html">Home</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="community.html">Community</a></li>
       </ul>
     </div>
   </div>
