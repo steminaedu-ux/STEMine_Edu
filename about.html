@@ -9,6 +9,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
   <style>
     @font-face { font-family: 'Hertical'; src: url('assets/Hertical_Sans_Rough.otf') format('opentype'); }
+    @font-face { font-family: 'Ananda'; src: url('assets/AnandaBlackPersonalUseRegular-rg9Rx.ttf') format('truetype'); font-weight: normal; font-style: normal; }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root { --blue:#1A3FCC; --blue-dark:#0F2799; --yellow:#FFD700; --cream:#F5F0E8; --gray:#6B7280; --ink:#0D1B5E; }
     html { scroll-behavior: smooth; }
@@ -74,6 +75,51 @@
     .mission-quote em { color: var(--yellow); font-style: normal; }
     .mission-sub { font-size: 13px; color: rgba(255,255,255,0.5); margin-top: 12px; letter-spacing: 1px; position: relative; z-index: 2; }
 
+    /* FOUNDERS */
+    .founders-section { position: relative; padding: 100px 56px; }
+    .founders-inner { max-width: 1080px; margin: 0 auto; position: relative; z-index: 2; }
+    .founders-header { text-align: center; max-width: 640px; margin: 0 auto 72px; }
+    .founders-header .section-eyebrow { justify-content: center; }
+    .founders-header .section-eyebrow::after { display: none; }
+    .founders-header h2 { font-family: 'Hertical', sans-serif; font-size: clamp(32px, 4.6vw, 54px); color: var(--ink); margin-bottom: 14px; }
+    .founders-header p { font-size: 16px; color: var(--gray); line-height: 1.7; }
+
+    .founder-row { display: flex; align-items: center; gap: 52px; margin-bottom: 96px; }
+    .founder-row:last-child { margin-bottom: 0; }
+    .founder-row.reverse { flex-direction: row-reverse; }
+
+    .photo-frame-wrap { flex: 0 0 240px; width: 240px; }
+    .photo-frame { position: relative; width: 100%; filter: drop-shadow(0 14px 28px rgba(13,27,94,0.15)); }
+    .photo-frame img.frame-photo { position: absolute; display: block; object-fit: cover; border-radius: 1px; }
+    .photo-frame img.frame-overlay { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+
+    .founder-bubble-wrap { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+    .founder-row.reverse .founder-bubble-wrap { align-items: flex-end; text-align: right; }
+    .founder-bubble { position: relative; width: 100%; max-width: 660px; }
+    .founder-bubble img { width: 100%; height: 100%; display: block; object-fit: fill; }
+    .founder-bubble-text {
+      position: absolute; top: 16%; left: 9%; right: 10%; bottom: 20%;
+      display: flex; flex-direction: column; justify-content: center; overflow: hidden;
+    }
+    .founder-row.reverse .founder-bubble-text { left: 10%; right: 9%; }
+    .founder-bubble-text p { font-family: 'Ananda', 'Inter', sans-serif; font-size: clamp(13px, 1.25vw, 17px); line-height: 1.42; margin-bottom: 8px; }
+    .founder-bubble-text p:last-child { margin-bottom: 0; }
+    .founder-bubble.on-dark .founder-bubble-text p { color: #ffffff; }
+    .founder-bubble.on-light .founder-bubble-text p { color: var(--ink); }
+    .founder-name { margin-top: 18px; font-size: 15px; }
+    .founder-name strong { color: var(--ink); }
+    .founder-name span { display: block; font-size: 12px; color: var(--gray); font-weight: 600; margin-top: 2px; }
+
+    @media (max-width: 900px) {
+      .founder-row, .founder-row.reverse { flex-direction: column; gap: 24px; margin-bottom: 64px; }
+      .founder-row.reverse .founder-bubble-wrap { align-items: center; text-align: center; }
+      .founder-bubble-wrap { align-items: center; text-align: center; }
+      .photo-frame-wrap { width: 200px; flex-basis: 200px; }
+      .founder-bubble, .founder-row.reverse .founder-bubble { max-width: 420px; }
+      .founder-bubble-text, .founder-row.reverse .founder-bubble-text { left: 11%; right: 11%; top: 15%; bottom: 21%; }
+      .founder-bubble-text p { font-size: clamp(12px, 3.4vw, 14px); line-height: 1.4; }
+    }
+
     /* FOLLOW / SUPPORT CTA */
     .support-section { padding: 100px 56px; text-align: center; background: var(--blue-dark); position: relative; overflow: hidden; }
     .support-section::before { content: ''; position: absolute; top: -100px; right: -100px; width: 500px; height: 500px; border-radius: 50%; background: rgba(255,215,0,0.04); }
@@ -89,6 +135,12 @@
     .sr { opacity: 0; transform: translateY(32px); transition: opacity 0.7s ease, transform 0.7s ease; }
     .sr.d1 { transition-delay: 0.1s; } .sr.d2 { transition-delay: 0.2s; }
     .sr.visible { opacity: 1; transform: translateY(0); }
+
+    /* Directional slide as elements scroll — position/opacity are driven
+       continuously by scroll in JS (see below), the same way the article
+       header cover photo works, so scrolling back up reverses it smoothly
+       instead of just replaying a one-off entrance animation. */
+    .sr-left, .sr-right { opacity: 0; will-change: transform, opacity; }
 
     footer { background: #060e36; padding: 40px 56px; text-align: center; font-size: 14px; color: rgba(255,255,255,0.4); }
     footer strong { color: white; }
@@ -192,6 +244,100 @@
   </div>
 </section>
 
+<!-- MEET THE FOUNDERS -->
+<section class="founders-section" style="background:url('assets/bg-watercolor.png') center/cover no-repeat;">
+  <div class="founders-inner">
+    <div class="founders-header sr">
+      <div class="section-eyebrow">Our Team</div>
+      <h2>Meet the Founders</h2>
+      <p>Four students who turned a shared frustration with unequal access to STEM education into STEMina.</p>
+    </div>
+
+    <!-- Mya Wong -->
+    <div class="founder-row">
+      <div class="photo-frame-wrap sr-left">
+        <div class="photo-frame" style="aspect-ratio: 692 / 865;">
+          <img class="frame-photo" src="assets/mya.png" alt="Mya Wong" style="top:11.33%; left:4.34%; width:90.17%; height:68.9%; object-position:center 20%;"/>
+          <img class="frame-overlay" src="assets/frame-polaroid.png" alt=""/>
+        </div>
+      </div>
+      <div class="founder-bubble-wrap sr-right d1">
+        <div class="founder-bubble on-dark">
+          <img src="assets/bubble-darkblue.png" alt=""/>
+          <div class="founder-bubble-text">
+            <p>In truth, I've been incredibly fortunate to have access to the resources and support for education. However, I recognize that is not the reality for many students out there. Not every student is given the same access to resources, guidance, or opportunities because of the circumstances they were born into.</p>
+            <p>Rather than simply acknowledging this issue, I want to deconstruct the disparity and actively bridge this gap.</p>
+            <p>To the student who has been denied opportunities... or who also wishes to help change that reality, I will reflect your voice in my work. I will help create a compassionate community where education and opportunities in STEM are not privileges for only a select few, but a possibility for everyone.</p>
+          </div>
+        </div>
+        <div class="founder-name"><strong>Mya Wong</strong><span>Co-founder of STEMina</span></div>
+      </div>
+    </div>
+
+    <!-- Hayden Lee -->
+    <div class="founder-row reverse">
+      <div class="photo-frame-wrap sr-right">
+        <div class="photo-frame" style="aspect-ratio: 802 / 890;">
+          <img class="frame-photo" src="assets/hayden.png" alt="Hayden Lee" style="top:10.67%; left:3.62%; width:78.43%; height:67.19%; object-position:center 25%;"/>
+          <img class="frame-overlay" src="assets/frame-layered-tape.png" alt=""/>
+        </div>
+      </div>
+      <div class="founder-bubble-wrap sr-left d1">
+        <div class="founder-bubble on-light">
+          <img src="assets/bubble-lightblue.png" alt=""/>
+          <div class="founder-bubble-text">
+            <p>From drawing stick figures to now building digital platforms, education provided me with the skills and understanding of the world that allows me to turn abstract ideas into tangible reality. Having been a receiver for most of my life, I realized my responsibility and passion to become a giver by sharing my learnings with others.</p>
+            <p>A little more about me — I've always loved being part of innovative and impactful activities, whether through digital creation like gaming, video editing, and animation, or physically through figure skating, drawing, and DIY projects. I'm grateful to have access to opportunities that help me improve every day.</p>
+            <p>By creating STEMina, I hope STEM education can become accessible to everyone, regardless of their background or where they live. Like our name, STEMina, I hope we can keep our passion alive to learn and grow together.</p>
+          </div>
+        </div>
+        <div class="founder-name"><strong>Hayden Lee</strong><span>Co-founder of STEMina</span></div>
+      </div>
+    </div>
+
+    <!-- Thivyaa Sivalinganathan -->
+    <div class="founder-row">
+      <div class="photo-frame-wrap sr-left">
+        <div class="photo-frame" style="aspect-ratio: 768 / 864;">
+          <img class="frame-photo" src="assets/thivyaa.png" alt="Thivyaa Sivalinganathan" style="top:11.34%; left:7.68%; width:83.2%; height:69.56%; object-position:center 15%;"/>
+          <img class="frame-overlay" src="assets/frame-layered-clip.png" alt=""/>
+        </div>
+      </div>
+      <div class="founder-bubble-wrap sr-right d1">
+        <div class="founder-bubble on-light">
+          <img src="assets/bubble-pink.png" alt=""/>
+          <div class="founder-bubble-text">
+            <p>I used to think learning was just about memorizing facts for tests. But through STEM, I realized it's actually about being curious, asking questions, and never stopping exploring the world around us.</p>
+            <p>The problem is, not everyone gets the same shot at this kind of education. A lot of students miss out on great opportunities and resources just because of where they live or go to school. That's why we started STEMina.</p>
+            <p>I hope to help create a welcoming community where students feel encouraged to learn, grow, and explore STEM — whether through educational content, creative projects, and more. I want to inspire others to believe that STEM is something they can be a part of too.</p>
+          </div>
+        </div>
+        <div class="founder-name"><strong>Thivyaa Sivalinganathan</strong><span>Co-founder of STEMina</span></div>
+      </div>
+    </div>
+
+    <!-- Harshita Yadav -->
+    <div class="founder-row reverse">
+      <div class="photo-frame-wrap sr-right">
+        <div class="photo-frame" style="aspect-ratio: 692 / 865;">
+          <img class="frame-photo" src="assets/harshita.png" alt="Harshita Yadav" style="top:11.33%; left:4.34%; width:90.17%; height:68.9%; object-position:center 12%;"/>
+          <img class="frame-overlay" src="assets/frame-polaroid.png" alt=""/>
+        </div>
+      </div>
+      <div class="founder-bubble-wrap sr-left d1">
+        <div class="founder-bubble on-dark">
+          <img src="assets/bubble-red.png" alt=""/>
+          <div class="founder-bubble-text">
+            <p>"Growing up, I had access to so many competitions and opportunities that shaped who I am today. Looking back, I hope the privilege I had to access such opportunities can be extended to children who have so much potential of their own.</p>
+            <p>That's why I believe we should use our advantages to help balance this educational disparity, and why this platform is my way of putting in all the effort I can to make this reality possible!"</p>
+          </div>
+        </div>
+        <div class="founder-name"><strong>Harshita Yadav</strong><span>Co-founder of STEMina</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- SUPPORT / FOLLOW -->
 <section class="support-section">
   <div class="support-inner sr">
@@ -211,10 +357,48 @@
 <script>
   function openMobileNav() { document.getElementById('mobileNav').classList.add('open'); }
   function closeMobileNav() { document.getElementById('mobileNav').classList.remove('open'); }
+
+  // Plain fade-up sections: reveal once scrolled into view, hide again if
+  // scrolled back out, so re-entering plays it again.
   const obs = new IntersectionObserver(entries => {
-    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+    entries.forEach(e => { e.target.classList.toggle('visible', e.isIntersecting); });
   }, { threshold: 0.1 });
   document.querySelectorAll('.sr').forEach(el => obs.observe(el));
+
+  // Founder photos/bubbles slide in from the side and fade — driven
+  // continuously by scroll position (like the article header cover photo),
+  // not a one-off entrance animation, so scrolling back up slides them
+  // back out smoothly instead of just staying visible.
+  const slideEls = Array.from(document.querySelectorAll('.sr-left, .sr-right'));
+  if (slideEls.length) {
+    const DIST = 70;   // px of horizontal travel on desktop
+    const DIST_MOBILE = 28; // px of vertical travel on narrow screens
+    let ticking = false;
+    function updateSlides() {
+      const vh = window.innerHeight;
+      const start = vh * 0.92;  // begin sliding in once this far from viewport top
+      const end = vh * 0.55;    // fully in place by this point
+      const mobile = window.innerWidth <= 900;
+      slideEls.forEach(el => {
+        const rect = el.getBoundingClientRect();
+        let p = (start - rect.top) / (start - end);
+        p = Math.max(0, Math.min(1, p));
+        if (mobile) {
+          el.style.transform = `translateY(${(1 - p) * DIST_MOBILE}px)`;
+        } else {
+          const dir = el.classList.contains('sr-left') ? -1 : 1;
+          el.style.transform = `translateX(${(1 - p) * DIST * dir}px)`;
+        }
+        el.style.opacity = String(p);
+      });
+      ticking = false;
+    }
+    window.addEventListener('scroll', () => {
+      if (!ticking) { requestAnimationFrame(updateSlides); ticking = true; }
+    }, { passive: true });
+    window.addEventListener('resize', updateSlides);
+    updateSlides();
+  }
 </script>
 </body>
 </html>
