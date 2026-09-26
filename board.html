@@ -249,6 +249,36 @@
     .guide-btn-primary:hover { background: var(--blue-dark); }
     .guide-note { font-size: 12px; color: var(--gray); margin-top: 12px; }
 
+    /* LIGHTBOX — full image view on click */
+    .drawing-slot .slot-img { cursor: zoom-in; }
+    .lightbox-overlay {
+      display: none; position: fixed; inset: 0; z-index: 600;
+      background: rgba(6,14,54,0.88); backdrop-filter: blur(6px);
+      align-items: center; justify-content: center; padding: 40px;
+    }
+    .lightbox-overlay.open { display: flex; }
+    .lightbox-content {
+      position: relative; max-width: 900px; max-height: 88vh; width: 100%;
+      display: flex; flex-direction: column; align-items: center;
+      opacity: 0; transform: scale(0.92);
+      transition: opacity 0.25s ease, transform 0.25s ease;
+    }
+    .lightbox-overlay.open .lightbox-content { opacity: 1; transform: scale(1); }
+    .lightbox-content img {
+      max-width: 100%; max-height: 72vh; object-fit: contain;
+      border-radius: 10px; box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+      background: rgba(255,255,255,0.05);
+    }
+    .lightbox-caption { text-align: center; margin-top: 18px; color: white; }
+    .lightbox-topic { font-size: 11px; font-weight: 800; letter-spacing: 2px; color: var(--yellow); text-transform: uppercase; margin-bottom: 6px; }
+    .lightbox-title { font-family: 'Hertical', sans-serif; font-size: 24px; color: white; margin-bottom: 4px; }
+    .lightbox-author { font-size: 13px; color: rgba(255,255,255,0.65); }
+    .lightbox-close {
+      position: absolute; top: -44px; right: -8px;
+      background: none; border: none; color: white; font-size: 26px;
+      cursor: pointer; line-height: 1; padding: 6px;
+    }
+
     @media (max-width: 768px) {
       nav { padding: 14px 20px; } .nav-links,.nav-cta { display: none; } .nav-hamburger { display: flex; }
       .board-page { padding: 100px 16px 60px; }
@@ -256,6 +286,8 @@
       .mascot-corner { width: 190px; bottom: -30px; right: -16px; }
       .fact-bubble { width: 190px; bottom: 175px; right: 4px; }
       .guide-fab { right: 16px; bottom: 16px; padding: 13px 18px; font-size: 13px; }
+      .lightbox-overlay { padding: 20px; }
+      .lightbox-close { top: -40px; right: 0; }
     }
   </style>
 </head>
@@ -363,6 +395,19 @@
   </div>
 </div>
 
+<!-- LIGHTBOX — shows the full, uncropped drawing when a pinned image is clicked -->
+<div class="lightbox-overlay" id="lightboxOverlay">
+  <div class="lightbox-content">
+    <button class="lightbox-close" onclick="closeLightbox()" aria-label="Close">&#x2715;</button>
+    <img id="lightboxImg" src="" alt=""/>
+    <div class="lightbox-caption">
+      <div class="lightbox-topic" id="lightboxTopic"></div>
+      <div class="lightbox-title" id="lightboxTitle"></div>
+      <div class="lightbox-author" id="lightboxAuthor"></div>
+    </div>
+  </div>
+</div>
+
 <footer>
   <p><strong>STEMina EDU</strong> — Student-Led STEM Initiative &nbsp;|&nbsp; 2025 All rights reserved.</p>
 </footer>
@@ -376,7 +421,28 @@
   document.getElementById('guideOverlay').addEventListener('click', e => {
     if (e.target.id === 'guideOverlay') closeGuideModal();
   });
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeGuideModal(); });
+
+  // ---- LIGHTBOX — full-size image view on click ----
+  function openLightbox(slotEl) {
+    const img = slotEl.querySelector('.slot-img');
+    if (!img) return; // empty placeholder slots have nothing to zoom into
+    document.getElementById('lightboxImg').src = img.src;
+    document.getElementById('lightboxImg').alt = img.alt || '';
+    document.getElementById('lightboxTopic').textContent = slotEl.dataset.topic || '';
+    document.getElementById('lightboxTitle').textContent = slotEl.dataset.title || '';
+    document.getElementById('lightboxAuthor').textContent = slotEl.dataset.author || '';
+    document.getElementById('lightboxOverlay').classList.add('open');
+  }
+  function closeLightbox() {
+    document.getElementById('lightboxOverlay').classList.remove('open');
+  }
+  document.getElementById('lightboxOverlay').addEventListener('click', e => {
+    if (e.target.id === 'lightboxOverlay') closeLightbox();
+  });
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { closeGuideModal(); closeLightbox(); }
+  });
 
   const facts = [
     "Honey never spoils. Archaeologists found 3,000-year-old honey in Egyptian tombs that was still edible.",
@@ -526,7 +592,7 @@
     }
     const week = boardWeeks[i];
     grid.innerHTML = week.slots.map(s => `
-      <div class="drawing-slot" data-title="${s.title}" data-author="${s.author}" data-topic="${s.topic}">
+      <div class="drawing-slot" data-title="${s.title}" data-author="${[s.name, s.author].filter(Boolean).join(' \u00b7 ')}" data-topic="${s.topic}" onclick="openLightbox(this)">
         <div class="slot-pin"></div>
         ${s.image ? `<img class="slot-img" src="${s.image}" alt="${s.title}"/>` : `<div class="slot-empty" style="background:${s.color}"></div>`}
         <div class="slot-overlay">
