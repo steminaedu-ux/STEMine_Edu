@@ -3,12 +3,20 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="icon" type="image/png" href="assets/images/brand/logo.png"/>
+  <link rel="apple-touch-icon" href="assets/images/brand/logo.png"/>
+  <script>
+    // Show clean URLs (/about, /) even if someone lands on /about.html or /index.html
+    if (/\.html$/.test(location.pathname) && location.protocol.startsWith('http')) {
+      history.replaceState(null, '', location.pathname.replace(/(index)?\.html$/, '') + location.search + location.hash);
+    }
+  </script>
   <title>STEMina EDU | Student-Led STEM Initiative</title>
   <meta name="description" content="STEMina is a youth-led nonprofit making STEM education accessible to every child, everywhere."/>
   <meta name="keywords" content="STEM, nonprofit organization, accessible education, youth STEM, global showcase"/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
   <style>
-    @font-face { font-family: 'Hertical'; src: url('assets/Hertical_Sans_Rough.otf') format('opentype'); }
+    @font-face { font-family: 'Hertical'; src: url('assets/fonts/Hertical_Sans_Rough.otf') format('opentype'); }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root { --blue:#1A3FCC; --blue-dark:#0F2799; --yellow:#FFD700; --cream:#F5F0E8; --gray:#6B7280; --ink:#0D1B5E; }
     html { scroll-behavior: smooth; }
@@ -40,7 +48,7 @@
     /* HERO */
     .hero {
       min-height: 92vh;
-      background: url('assets/bg-watercolor2.png') center/cover no-repeat;
+      background: url('assets/images/backgrounds/bg-watercolor2.png') center/cover no-repeat;
       display: flex; flex-direction: column; align-items: center; justify-content: center;
       padding: 120px 48px 80px; position: relative; overflow: hidden; text-align: center;
     }
@@ -73,7 +81,7 @@
     .quote-sub { font-size: 13px; color: rgba(255,255,255,0.5); margin-top: 16px; letter-spacing: 1px; }
 
     /* SHOWCASE ACCESS */
-    .showcase-section { position: relative; padding: 100px 56px; background: url('assets/bg-watercolor.png') center/cover no-repeat; }
+    .showcase-section { position: relative; padding: 100px 56px; background: url('assets/images/backgrounds/bg-watercolor.png') center/cover no-repeat; }
     .showcase-section::before { content: ''; position: absolute; inset: 0; background: rgba(245,240,232,0.55); }
     .showcase-inner { position: relative; z-index: 2; max-width: 1000px; margin: 0 auto; display: grid; grid-template-columns: 1.1fr 1fr; gap: 56px; align-items: center; }
     .section-eyebrow { font-size: 10px; font-weight: 800; letter-spacing: 4px; text-transform: uppercase; color: var(--blue); margin-bottom: 14px; display: flex; align-items: center; gap: 10px; }
@@ -108,33 +116,33 @@
 
 <div class="mobile-nav" id="mobileNav">
   <button class="mobile-close" onclick="closeMobileNav()">X</button>
-  <a href="index.html" onclick="closeMobileNav()">Home</a>
-  <a href="about.html" onclick="closeMobileNav()">About</a>
-  <a href="community.html" onclick="closeMobileNav()">Community</a>
-  <a href="showcase.html" onclick="closeMobileNav()">Global Showcase</a>
-  <a href="map.html" class="mobile-sub" onclick="closeMobileNav()">STEM Map</a>
-  <a href="board.html" class="mobile-sub" onclick="closeMobileNav()">Drawing Board</a>
-  <a href="articles.html" class="mobile-sub" onclick="closeMobileNav()">Articles</a>
-  <a href="apply.html" class="mobile-sub" onclick="closeMobileNav()">How to Submit</a>
+  <a href="./" onclick="closeMobileNav()">Home</a>
+  <a href="about/" onclick="closeMobileNav()">About</a>
+  <a href="community/" onclick="closeMobileNav()">Community</a>
+  <a href="showcase/" onclick="closeMobileNav()">Global Showcase</a>
+  <a href="map/" class="mobile-sub" onclick="closeMobileNav()">STEM Map</a>
+  <a href="board/" class="mobile-sub" onclick="closeMobileNav()">Drawing Board</a>
+  <a href="articles/" class="mobile-sub" onclick="closeMobileNav()">Articles</a>
+  <a href="apply/" class="mobile-sub" onclick="closeMobileNav()">How to Submit</a>
 </div>
 
 <nav id="mainNav">
-  <a href="index.html" class="nav-logo"><img src="assets/logo.png" alt="STEMina EDU"/></a>
+  <a href="./" class="nav-logo"><img src="assets/images/brand/logo.png" alt="STEMina EDU"/></a>
   <ul class="nav-links">
-    <li><a href="index.html" class="active">Home</a></li>
-    <li><a href="about.html">About</a></li>
-    <li><a href="community.html">Community</a></li>
+    <li><a href="./" class="active">Home</a></li>
+    <li><a href="about/">About</a></li>
+    <li><a href="community/">Community</a></li>
     <li class="nav-dropdown">
-      <a href="showcase.html">Global Showcase</a>
+      <a href="showcase/">Global Showcase</a>
       <div class="dropdown-menu">
-        <a href="map.html">Global STEM Map</a>
-        <a href="board.html">Drawing Board</a>
-        <a href="articles.html">Articles</a>
-        <a href="apply.html">How to Submit</a>
+        <a href="map/">Global STEM Map</a>
+        <a href="board/">Drawing Board</a>
+        <a href="articles/">Articles</a>
+        <a href="apply/">How to Submit</a>
       </div>
     </li>
   </ul>
-  <a href="apply.html#portal" class="nav-cta">Submit Your Work</a>
+  <a href="apply/#portal" class="nav-cta">Submit Your Work</a>
   <div class="nav-hamburger" onclick="openMobileNav()"><span></span><span></span><span></span></div>
 </nav>
 
@@ -146,12 +154,12 @@
     <div class="hero-divider"><span>STEMina EDU</span></div>
     <p>A youth-led nonprofit breaking down barriers to STEM education worldwide — free, accessible, and built for every child, everywhere.</p>
     <div class="hero-buttons">
-      <a href="about.html" class="btn-primary">About Us</a>
-      <a href="showcase.html" class="btn-outline">Enter the Global Showcase</a>
+      <a href="about/" class="btn-primary">About Us</a>
+      <a href="showcase/" class="btn-outline">Enter the Global Showcase</a>
     </div>
   </div>
   <div class="island-wrap" id="islandWrap">
-    <img src="assets/island.png" alt="Watercolour tropical island"/>
+    <img src="assets/images/backgrounds/island.png" alt="Watercolour tropical island"/>
   </div>
 </section>
 
@@ -159,7 +167,7 @@
 <section class="quote-section">
   <div class="quote-inner sr">
     <!-- logo2 is the horizontal version, better suited for this wider banner -->
-    <img src="assets/logo2.png" alt="STEMina Logo" class="quote-logo"/>
+    <img src="assets/images/brand/logo2.png" alt="STEMina Logo" class="quote-logo"/>
     <div class="quote-text">"Building <em>STEMina</em><br>for the Future"</div>
     <div class="quote-sub">Student-Led STEM Initiative</div>
   </div>
@@ -173,16 +181,16 @@
       <h2 class="section-title">Explore the Global Showcase</h2>
       <p class="section-body">Everything STEMina has built lives on the Global Showcase — an interactive space where students, elders, and educators share STEM stories from every corner of the world.</p>
       <div class="showcase-list">
-        <a href="map.html">Global STEM Map <span class="arrow">&rarr;</span></a>
-        <a href="board.html">Drawing Board <span class="arrow">&rarr;</span></a>
-        <a href="articles.html">Articles and Stories <span class="arrow">&rarr;</span></a>
-        <a href="apply.html">How to Submit Your Work <span class="arrow">&rarr;</span></a>
+        <a href="map/">Global STEM Map <span class="arrow">&rarr;</span></a>
+        <a href="board/">Drawing Board <span class="arrow">&rarr;</span></a>
+        <a href="articles/">Articles and Stories <span class="arrow">&rarr;</span></a>
+        <a href="apply/">How to Submit Your Work <span class="arrow">&rarr;</span></a>
       </div>
     </div>
     <div class="showcase-visual sr d2">
       <h3>The Global<br>Showcase</h3>
       <p>An interactive map, a community drawing board, and articles worth discovering — dive in and see what students around the world have created.</p>
-      <a href="showcase.html" class="btn-primary" style="display:inline-block;">Visit the Showcase</a>
+      <a href="showcase/" class="btn-primary" style="display:inline-block;">Visit the Showcase</a>
     </div>
   </div>
 </section>
@@ -221,11 +229,18 @@
   };
   const db = getFirestore(initializeApp(firebaseConfig));
 
-  const today = new Date().toISOString().slice(0,10); // e.g. "2026-07-26"
-  setDoc(doc(db, 'analytics', 'siteViews'), {
-    total: increment(1),
-    daily: { [today]: increment(1) }
-  }, { merge: true }).catch(e => console.error('Visit counter failed:', e));
+  // Only count visits to the live site, not local testing (localhost, LAN IPs, or files opened from disk)
+  const host = location.hostname;
+  const isLocal = location.protocol === 'file:' || host === '' || host === 'localhost' || host.endsWith('.local') ||
+    host === '[::1]' || /^(127\.|10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.)/.test(host);
+
+  if (!isLocal) {
+    const today = new Date().toISOString().slice(0,10); // e.g. "2026-07-26"
+    setDoc(doc(db, 'analytics', 'siteViews'), {
+      total: increment(1),
+      daily: { [today]: increment(1) }
+    }, { merge: true }).catch(e => console.error('Visit counter failed:', e));
+  }
 </script>
 </body>
 </html>

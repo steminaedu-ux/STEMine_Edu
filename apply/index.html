@@ -3,11 +3,19 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="icon" type="image/png" href="../assets/images/brand/logo.png"/>
+  <link rel="apple-touch-icon" href="../assets/images/brand/logo.png"/>
+  <script>
+    // Show clean URLs (/about, /) even if someone lands on /about.html or /index.html
+    if (/\.html$/.test(location.pathname) && location.protocol.startsWith('http')) {
+      history.replaceState(null, '', location.pathname.replace(/(index)?\.html$/, '') + location.search + location.hash);
+    }
+  </script>
   <title>Apply | STEMina EDU</title>
   <meta name="description" content="Everything you need to know to submit your work to the STEMina Global Showcase — tracks, recognition steps, criteria, and the submission portal."/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
   <style>
-    @font-face { font-family: 'Hertical'; src: url('assets/Hertical_Sans_Rough.otf') format('opentype'); }
+    @font-face { font-family: 'Hertical'; src: url('../assets/fonts/Hertical_Sans_Rough.otf') format('opentype'); }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
       --blue: #1A3FCC; --blue-dark: #0F2799; --yellow: #FFD700;
@@ -44,7 +52,7 @@
     .section-title { font-family: 'Hertical', sans-serif; font-size: clamp(36px, 4.5vw, 58px); line-height: 1.05; color: var(--ink); margin-bottom: 20px; }
 
     /* HERO (Section 1 — overview) */
-    .apply-hero { position: relative; padding: 150px 56px 90px; background: url('assets/bg-watercolor2.png') center/cover no-repeat; text-align: center; }
+    .apply-hero { position: relative; padding: 150px 56px 90px; background: url('../assets/images/backgrounds/bg-watercolor2.png') center/cover no-repeat; text-align: center; }
     .apply-hero::before { content: ''; position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(245,240,232,0.25) 0%, rgba(245,240,232,0.5) 100%); }
     .apply-hero-inner { position: relative; z-index: 2; max-width: 760px; margin: 0 auto; }
     .apply-hero .stemina-wordmark { display: inline-block; font-size: 11px; font-weight: 800; letter-spacing: 4px; color: var(--blue); text-transform: uppercase; padding: 8px 20px; border: 2px solid rgba(26,63,204,0.25); border-radius: 999px; margin-bottom: 28px; background: rgba(255,255,255,0.6); }
@@ -56,7 +64,7 @@
     .apply-toc a:hover { background: white; transform: translateY(-2px); }
 
     /* SECTION 2 — TWO TRACKS */
-    .tracks-section { position: relative; padding: 100px 56px; background: url('assets/bg-watercolor.png') center/cover no-repeat; }
+    .tracks-section { position: relative; padding: 100px 56px; background: url('../assets/images/backgrounds/bg-watercolor.png') center/cover no-repeat; }
     .tracks-section::before { content: ''; position: absolute; inset: 0; background: rgba(245,240,232,0.6); }
     .tracks-inner { position: relative; z-index: 2; max-width: 1140px; margin: 0 auto; }
     .tracks-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 44px; }
@@ -155,33 +163,33 @@
 
 <div class="mobile-nav" id="mobileNav">
   <button class="mobile-close" onclick="closeMobileNav()">X</button>
-  <a href="index.html" onclick="closeMobileNav()">Home</a>
-  <a href="about.html" onclick="closeMobileNav()">About</a>
-  <a href="community.html" onclick="closeMobileNav()">Community</a>
-  <a href="showcase.html" onclick="closeMobileNav()">Global Showcase</a>
-  <a href="map.html" class="mobile-sub" onclick="closeMobileNav()">STEM Map</a>
-  <a href="board.html" class="mobile-sub" onclick="closeMobileNav()">Drawing Board</a>
-  <a href="articles.html" class="mobile-sub" onclick="closeMobileNav()">Articles</a>
-  <a href="apply.html" class="mobile-sub" onclick="closeMobileNav()">How to Submit</a>
+  <a href="../" onclick="closeMobileNav()">Home</a>
+  <a href="../about/" onclick="closeMobileNav()">About</a>
+  <a href="../community/" onclick="closeMobileNav()">Community</a>
+  <a href="../showcase/" onclick="closeMobileNav()">Global Showcase</a>
+  <a href="../map/" class="mobile-sub" onclick="closeMobileNav()">STEM Map</a>
+  <a href="../board/" class="mobile-sub" onclick="closeMobileNav()">Drawing Board</a>
+  <a href="../articles/" class="mobile-sub" onclick="closeMobileNav()">Articles</a>
+  <a href="../apply/" class="mobile-sub" onclick="closeMobileNav()">How to Submit</a>
 </div>
 
 <nav>
-  <a href="index.html"><img src="assets/logo.png" alt="STEMina" style="height:44px;"/></a>
+  <a href="../"><img src="../assets/images/brand/logo.png" alt="STEMina" style="height:44px;"/></a>
   <ul class="nav-links">
-    <li><a href="index.html">Home</a></li>
-    <li><a href="about.html">About</a></li>
-    <li><a href="community.html">Community</a></li>
+    <li><a href="../">Home</a></li>
+    <li><a href="../about/">About</a></li>
+    <li><a href="../community/">Community</a></li>
     <li class="nav-dropdown">
-      <a href="showcase.html" class="active">Global Showcase</a>
+      <a href="../showcase/" class="active">Global Showcase</a>
       <div class="dropdown-menu">
-        <a href="map.html">Global STEM Map</a>
-        <a href="board.html">Drawing Board</a>
-        <a href="articles.html">Articles</a>
-        <a href="apply.html" class="active">How to Submit</a>
+        <a href="../map/">Global STEM Map</a>
+        <a href="../board/">Drawing Board</a>
+        <a href="../articles/">Articles</a>
+        <a href="../apply/" class="active">How to Submit</a>
       </div>
     </li>
   </ul>
-  <a href="apply.html#portal" class="nav-cta">Submit Your Work</a>
+  <a href="../apply/#portal" class="nav-cta">Submit Your Work</a>
   <div class="nav-hamburger" onclick="openMobileNav()"><span></span><span></span><span></span></div>
 </nav>
 
@@ -436,7 +444,7 @@
         <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:28px;">
           <div style="display:flex;gap:12px;align-items:flex-start;">
             <div style="width:28px;height:28px;border-radius:50%;background:rgba(26,63,204,0.08);color:var(--blue);font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">1</div>
-            <p style="font-size:14px;color:var(--gray);line-height:1.6;">Go to the <a href="map.html" style="color:var(--blue);font-weight:700;">STEM Map</a> page</p>
+            <p style="font-size:14px;color:var(--gray);line-height:1.6;">Go to the <a href="../map/" style="color:var(--blue);font-weight:700;">STEM Map</a> page</p>
           </div>
           <div style="display:flex;gap:12px;align-items:flex-start;">
             <div style="width:28px;height:28px;border-radius:50%;background:rgba(26,63,204,0.08);color:var(--blue);font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">2</div>
@@ -447,7 +455,7 @@
             <p style="font-size:14px;color:var(--gray);line-height:1.6;">Click it — a popup opens with the guide and a direct link to the Google Form</p>
           </div>
         </div>
-        <a href="map.html" style="display:inline-block;background:var(--blue);color:white;padding:12px 24px;border-radius:999px;font-weight:700;font-size:14px;text-decoration:none;">Go to STEM Map</a>
+        <a href="../map/" style="display:inline-block;background:var(--blue);color:white;padding:12px 24px;border-radius:999px;font-weight:700;font-size:14px;text-decoration:none;">Go to STEM Map</a>
       </div>
 
       <div id="board-submit-card" style="background:white;border-radius:20px;padding:36px;border:2px solid rgba(26,63,204,0.08);" class="sr">
@@ -457,7 +465,7 @@
         <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:28px;">
           <div style="display:flex;gap:12px;align-items:flex-start;">
             <div style="width:28px;height:28px;border-radius:50%;background:rgba(26,63,204,0.08);color:var(--blue);font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">1</div>
-            <p style="font-size:14px;color:var(--gray);line-height:1.6;">Go to the <a href="board.html" style="color:var(--blue);font-weight:700;">Drawing Board</a> page</p>
+            <p style="font-size:14px;color:var(--gray);line-height:1.6;">Go to the <a href="../board/" style="color:var(--blue);font-weight:700;">Drawing Board</a> page</p>
           </div>
           <div style="display:flex;gap:12px;align-items:flex-start;">
             <div style="width:28px;height:28px;border-radius:50%;background:rgba(26,63,204,0.08);color:var(--blue);font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">2</div>
@@ -468,7 +476,7 @@
             <p style="font-size:14px;color:var(--gray);line-height:1.6;">Click it — a popup opens with who can submit, accepted formats, and a direct link to the Google Form</p>
           </div>
         </div>
-        <a href="board.html" style="display:inline-block;background:var(--blue);color:white;padding:12px 24px;border-radius:999px;font-weight:700;font-size:14px;text-decoration:none;">Go to Drawing Board</a>
+        <a href="../board/" style="display:inline-block;background:var(--blue);color:white;padding:12px 24px;border-radius:999px;font-weight:700;font-size:14px;text-decoration:none;">Go to Drawing Board</a>
       </div>
 
     </div>

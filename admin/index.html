@@ -3,10 +3,18 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="icon" type="image/png" href="../assets/images/brand/logo.png"/>
+  <link rel="apple-touch-icon" href="../assets/images/brand/logo.png"/>
+  <script>
+    // Show clean URLs (/about, /) even if someone lands on /about.html or /index.html
+    if (/\.html$/.test(location.pathname) && location.protocol.startsWith('http')) {
+      history.replaceState(null, '', location.pathname.replace(/(index)?\.html$/, '') + location.search + location.hash);
+    }
+  </script>
   <title>STEMina Admin</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
   <style>
-    @font-face { font-family: 'Hertical'; src: url('assets/Hertical_Sans_Rough.otf') format('opentype'); }
+    @font-face { font-family: 'Hertical'; src: url('../assets/fonts/Hertical_Sans_Rough.otf') format('opentype'); }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root { --blue:#1A3FCC; --blue-dark:#0F2799; --yellow:#FFD700; --cream:#F5F0E8; --gray:#6B7280; --ink:#0D1B5E; --green:#0F9E6E; --red:#DC2626; }
     body { font-family: 'Inter', sans-serif; background: var(--cream); color: var(--ink); min-height: 100vh; }
@@ -14,7 +22,7 @@
     /* LOGIN */
     #loginScreen {
       min-height: 100vh; display: flex; align-items: center; justify-content: center;
-      background: url('assets/bg-watercolor2.png') center/cover no-repeat;
+      background: url('../assets/images/backgrounds/bg-watercolor2.png') center/cover no-repeat;
       position: relative;
     }
     #loginScreen::before { content:''; position:absolute; inset:0; background:rgba(245,240,232,0.6); }
@@ -176,7 +184,7 @@
 <!-- LOGIN -->
 <div id="loginScreen">
   <div class="login-card">
-    <img src="assets/logo.png" alt="STEMina" class="login-logo"/>
+    <img src="../assets/images/brand/logo.png" alt="STEMina" class="login-logo"/>
     <h1>Admin Panel</h1>
     <p>Sign in to manage your content</p>
     <div class="form-group">
@@ -198,7 +206,7 @@
     <div class="admin-nav-logo">STEM<span>ina</span> Admin</div>
     <div class="admin-nav-right">
       <span class="admin-name" id="adminNameDisplay"></span>
-      <a href="index.html" target="_blank">View Site</a>
+      <a href="../" target="_blank">View Site</a>
       <button class="logout-btn" onclick="doLogout()">Sign Out</button>
     </div>
   </nav>

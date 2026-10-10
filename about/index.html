@@ -3,13 +3,21 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="icon" type="image/png" href="../assets/images/brand/logo.png"/>
+  <link rel="apple-touch-icon" href="../assets/images/brand/logo.png"/>
+  <script>
+    // Show clean URLs (/about, /) even if someone lands on /about.html or /index.html
+    if (/\.html$/.test(location.pathname) && location.protocol.startsWith('http')) {
+      history.replaceState(null, '', location.pathname.replace(/(index)?\.html$/, '') + location.search + location.hash);
+    }
+  </script>
   <title>About Us | STEMina EDU</title>
   <meta name="description" content="STEMina is a youth-led nonprofit making STEM education accessible to children everywhere."/>
   <meta name="keywords" content="STEM, nonprofit organization, accessible education, youth STEM"/>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Nunito:wght@500;600&family=Fondamento&display=swap" rel="stylesheet"/>
   <style>
-    @font-face { font-family: 'Hertical'; src: url('assets/Hertical_Sans_Rough.otf') format('opentype'); }
-    @font-face { font-family: 'Ananda'; src: url('assets/AnandaBlackPersonalUseRegular-rg9Rx.ttf') format('truetype'); font-weight: normal; font-style: normal; }
+    @font-face { font-family: 'Hertical'; src: url('../assets/fonts/Hertical_Sans_Rough.otf') format('opentype'); }
+    @font-face { font-family: 'Ananda'; src: url('../assets/fonts/AnandaBlackPersonalUseRegular-rg9Rx.ttf') format('truetype'); font-weight: normal; font-style: normal; }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root { --blue:#1A3FCC; --blue-dark:#0F2799; --yellow:#FFD700; --cream:#F5F0E8; --gray:#6B7280; --ink:#0D1B5E; }
     html { scroll-behavior: smooth; }
@@ -38,7 +46,7 @@
     /* HERO */
     .about-hero {
       min-height: 55vh;
-      background: url('assets/bg-watercolor2.png') center/cover no-repeat;
+      background: url('../assets/images/backgrounds/bg-watercolor2.png') center/cover no-repeat;
       display: flex; align-items: center; justify-content: center;
       text-align: center; padding: 140px 48px 70px;
       position: relative;
@@ -51,7 +59,7 @@
     .about-hero p { font-size: 18px; color: #3a4870; line-height: 1.75; }
 
     /* MISSION-STYLE CONTENT SECTIONS */
-    .paper-section { position: relative; padding: 90px 56px; background: url('assets/bg-watercolor.png') center/cover no-repeat; }
+    .paper-section { position: relative; padding: 90px 56px; background: url('../assets/images/backgrounds/bg-watercolor.png') center/cover no-repeat; }
     .paper-section::before { content: ''; position: absolute; inset: 0; background: rgba(245,240,232,0.55); }
     .paper-inner { position: relative; z-index: 2; max-width: 1140px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; }
     .paper-inner.reverse { grid-template-columns: 1fr 1fr; }
@@ -95,14 +103,16 @@
 
     .founder-bubble-wrap { flex: 1; min-width: 0; display: flex; flex-direction: column; }
     .founder-row.reverse .founder-bubble-wrap { align-items: flex-end; text-align: right; }
-    .founder-bubble { position: relative; width: 100%; max-width: 660px; }
-    .founder-bubble img { width: 100%; height: 100%; display: block; object-fit: fill; }
-    .founder-bubble-text {
-      position: absolute; top: 16%; left: 9%; right: 10%; bottom: 20%;
-      display: flex; flex-direction: column; justify-content: center; overflow: hidden;
-    }
-    .founder-row.reverse .founder-bubble-text { left: 10%; right: 9%; }
-    .founder-bubble-text p { font-family: 'Ananda', 'Inter', sans-serif; font-size: clamp(13px, 1.25vw, 17px); line-height: 1.42; margin-bottom: 8px; }
+    /* Bubble keeps the artwork's proportions; the text is laid over it and
+       wrapped to the oval body of the bubble by fitBubbleText() below */
+    .founder-bubble { position: relative; width: 100%; max-width: 660px; aspect-ratio: 700 / 583; }
+    .founder-bubble img { position: absolute; inset: 0; width: 100%; height: 100%; display: block; object-fit: fill; }
+    .founder-bubble-text { position: absolute; inset: 0; overflow: hidden; text-align: center; }
+    .bubble-shape { height: 100%; }
+    .bubble-shape.left { float: left; }
+    .bubble-shape.right { float: right; }
+    /* Font size is set per bubble by fitBubbleText() so the text fills the bubble without overflowing */
+    .founder-bubble-text p { font-family: 'Fondamento', 'Lucida Calligraphy', cursive; font-weight: 400; font-size: 1em; line-height: 1.4; margin-bottom: 0.5em; overflow-wrap: normal; word-break: normal; hyphens: none; -webkit-hyphens: none; }
     .founder-bubble-text p:last-child { margin-bottom: 0; }
     .founder-bubble.on-dark .founder-bubble-text p { color: #ffffff; }
     .founder-bubble.on-light .founder-bubble-text p { color: var(--ink); }
@@ -113,11 +123,9 @@
     @media (max-width: 900px) {
       .founder-row, .founder-row.reverse { flex-direction: column; gap: 24px; margin-bottom: 64px; }
       .founder-row.reverse .founder-bubble-wrap { align-items: center; text-align: center; }
-      .founder-bubble-wrap { align-items: center; text-align: center; }
+      .founder-bubble-wrap { align-items: center; text-align: center; width: 100%; }
       .photo-frame-wrap { width: 200px; flex-basis: 200px; }
       .founder-bubble, .founder-row.reverse .founder-bubble { max-width: 420px; }
-      .founder-bubble-text, .founder-row.reverse .founder-bubble-text { left: 11%; right: 11%; top: 15%; bottom: 21%; }
-      .founder-bubble-text p { font-size: clamp(12px, 3.4vw, 14px); line-height: 1.4; }
     }
 
     /* FOLLOW / SUPPORT CTA */
@@ -157,33 +165,33 @@
 
 <div class="mobile-nav" id="mobileNav">
   <button class="mobile-close" onclick="closeMobileNav()">X</button>
-  <a href="index.html" onclick="closeMobileNav()">Home</a>
-  <a href="about.html" onclick="closeMobileNav()">About</a>
-  <a href="community.html" onclick="closeMobileNav()">Community</a>
-  <a href="showcase.html" onclick="closeMobileNav()">Global Showcase</a>
-  <a href="map.html" class="mobile-sub" onclick="closeMobileNav()">STEM Map</a>
-  <a href="board.html" class="mobile-sub" onclick="closeMobileNav()">Drawing Board</a>
-  <a href="articles.html" class="mobile-sub" onclick="closeMobileNav()">Articles</a>
-  <a href="apply.html" class="mobile-sub" onclick="closeMobileNav()">How to Submit</a>
+  <a href="../" onclick="closeMobileNav()">Home</a>
+  <a href="../about/" onclick="closeMobileNav()">About</a>
+  <a href="../community/" onclick="closeMobileNav()">Community</a>
+  <a href="../showcase/" onclick="closeMobileNav()">Global Showcase</a>
+  <a href="../map/" class="mobile-sub" onclick="closeMobileNav()">STEM Map</a>
+  <a href="../board/" class="mobile-sub" onclick="closeMobileNav()">Drawing Board</a>
+  <a href="../articles/" class="mobile-sub" onclick="closeMobileNav()">Articles</a>
+  <a href="../apply/" class="mobile-sub" onclick="closeMobileNav()">How to Submit</a>
 </div>
 
 <nav>
-  <a href="index.html"><img src="assets/logo.png" alt="STEMina" style="height:44px;"/></a>
+  <a href="../"><img src="../assets/images/brand/logo.png" alt="STEMina" style="height:44px;"/></a>
   <ul class="nav-links">
-    <li><a href="index.html">Home</a></li>
-    <li><a href="about.html" class="active">About</a></li>
-    <li><a href="community.html">Community</a></li>
+    <li><a href="../">Home</a></li>
+    <li><a href="../about/" class="active">About</a></li>
+    <li><a href="../community/">Community</a></li>
     <li class="nav-dropdown">
-      <a href="showcase.html">Global Showcase</a>
+      <a href="../showcase/">Global Showcase</a>
       <div class="dropdown-menu">
-        <a href="map.html">Global STEM Map</a>
-        <a href="board.html">Drawing Board</a>
-        <a href="articles.html">Articles</a>
-        <a href="apply.html">How to Submit</a>
+        <a href="../map/">Global STEM Map</a>
+        <a href="../board/">Drawing Board</a>
+        <a href="../articles/">Articles</a>
+        <a href="../apply/">How to Submit</a>
       </div>
     </li>
   </ul>
-  <a href="apply.html#portal" class="nav-cta">Submit Your Work</a>
+  <a href="../apply/#portal" class="nav-cta">Submit Your Work</a>
   <div class="nav-hamburger" onclick="openMobileNav()"><span></span><span></span><span></span></div>
 </nav>
 
@@ -208,7 +216,7 @@
       </div>
     </div>
     <div class="mission-visual sr d2">
-      <img src="assets/logo2.png" alt="STEMina Logo" class="mission-logo"/>
+      <img src="../assets/images/brand/logo2.png" alt="STEMina Logo" class="mission-logo"/>
       <div class="mission-quote" style="font-size:18px;color:rgba(255,255,255,0.85);">A youth-led nonprofit, working toward a world where every child has access to STEM education.</div>
       <div class="mission-sub">Student-Led STEM Initiative</div>
     </div>
@@ -216,7 +224,7 @@
 </section>
 
 <!-- OUR VISION -->
-<section class="paper-section" style="background-image:url('assets/bg-watercolor2.png');">
+<section class="paper-section" style="background-image:url('../assets/images/backgrounds/bg-watercolor2.png');">
   <div class="paper-inner reverse">
     <div class="sr">
       <div class="paper-card">
@@ -245,7 +253,7 @@
 </section>
 
 <!-- MEET THE FOUNDERS -->
-<section class="founders-section" style="background:url('assets/bg-watercolor.png') center/cover no-repeat;">
+<section class="founders-section" style="background:url('../assets/images/backgrounds/bg-watercolor.png') center/cover no-repeat;">
   <div class="founders-inner">
     <div class="founders-header sr">
       <div class="section-eyebrow">Our Team</div>
@@ -257,13 +265,13 @@
     <div class="founder-row">
       <div class="photo-frame-wrap sr-left">
         <div class="photo-frame" style="aspect-ratio: 692 / 865;">
-          <img class="frame-photo" src="assets/mya.png" alt="Mya Wong" style="top:11.33%; left:4.34%; width:90.17%; height:68.9%; object-position:center 20%;"/>
-          <img class="frame-overlay" src="assets/frame-polaroid.png" alt=""/>
+          <img class="frame-photo" src="../assets/images/team/mya.png" alt="Mya Wong" style="top:11.33%; left:4.34%; width:90.17%; height:68.9%; object-position:center 20%;"/>
+          <img class="frame-overlay" src="../assets/images/frames/frame-polaroid.png" alt=""/>
         </div>
       </div>
       <div class="founder-bubble-wrap sr-right d1">
         <div class="founder-bubble on-dark">
-          <img src="assets/bubble-darkblue.png" alt=""/>
+          <img src="../assets/images/bubbles/bubble-darkblue.png" alt=""/>
           <div class="founder-bubble-text">
             <p>In truth, I've been incredibly fortunate to have access to the resources and support for education. However, I recognize that is not the reality for many students out there. Not every student is given the same access to resources, guidance, or opportunities because of the circumstances they were born into.</p>
             <p>Rather than simply acknowledging this issue, I want to deconstruct the disparity and actively bridge this gap.</p>
@@ -278,13 +286,13 @@
     <div class="founder-row reverse">
       <div class="photo-frame-wrap sr-right">
         <div class="photo-frame" style="aspect-ratio: 802 / 890;">
-          <img class="frame-photo" src="assets/hayden.png" alt="Hayden Lee" style="top:10.67%; left:3.62%; width:78.43%; height:67.19%; object-position:center 25%;"/>
-          <img class="frame-overlay" src="assets/frame-layered-tape.png" alt=""/>
+          <img class="frame-photo" src="../assets/images/team/hayden.png" alt="Hayden Lee" style="top:10.67%; left:3.62%; width:78.43%; height:67.19%; object-position:center 25%;"/>
+          <img class="frame-overlay" src="../assets/images/frames/frame-layered-tape.png" alt=""/>
         </div>
       </div>
       <div class="founder-bubble-wrap sr-left d1">
         <div class="founder-bubble on-light">
-          <img src="assets/bubble-lightblue.png" alt=""/>
+          <img src="../assets/images/bubbles/bubble-lightblue.png" alt=""/>
           <div class="founder-bubble-text">
             <p>From drawing stick figures to now building digital platforms, education provided me with the skills and understanding of the world that allows me to turn abstract ideas into tangible reality. Having been a receiver for most of my life, I realized my responsibility and passion to become a giver by sharing my learnings with others.</p>
             <p>A little more about me — I've always loved being part of innovative and impactful activities, whether through digital creation like gaming, video editing, and animation, or physically through figure skating, drawing, and DIY projects. I'm grateful to have access to opportunities that help me improve every day.</p>
@@ -299,13 +307,13 @@
     <div class="founder-row">
       <div class="photo-frame-wrap sr-left">
         <div class="photo-frame" style="aspect-ratio: 768 / 864;">
-          <img class="frame-photo" src="assets/thivyaa.png" alt="Thivyaa Sivalinganathan" style="top:11.34%; left:7.68%; width:83.2%; height:69.56%; object-position:center 15%;"/>
-          <img class="frame-overlay" src="assets/frame-layered-clip.png" alt=""/>
+          <img class="frame-photo" src="../assets/images/team/thivyaa.png" alt="Thivyaa Sivalinganathan" style="top:11.34%; left:7.68%; width:83.2%; height:69.56%; object-position:center 15%;"/>
+          <img class="frame-overlay" src="../assets/images/frames/frame-layered-clip.png" alt=""/>
         </div>
       </div>
       <div class="founder-bubble-wrap sr-right d1">
         <div class="founder-bubble on-light">
-          <img src="assets/bubble-pink.png" alt=""/>
+          <img src="../assets/images/bubbles/bubble-pink.png" alt=""/>
           <div class="founder-bubble-text">
             <p>I used to think learning was just about memorizing facts for tests. But through STEM, I realized it's actually about being curious, asking questions, and never stopping exploring the world around us.</p>
             <p>The problem is, not everyone gets the same shot at this kind of education. A lot of students miss out on great opportunities and resources just because of where they live or go to school. That's why we started STEMina.</p>
@@ -320,13 +328,13 @@
     <div class="founder-row reverse">
       <div class="photo-frame-wrap sr-right">
         <div class="photo-frame" style="aspect-ratio: 692 / 865;">
-          <img class="frame-photo" src="assets/harshita.png" alt="Harshita Yadav" style="top:11.33%; left:4.34%; width:90.17%; height:68.9%; object-position:center 12%;"/>
-          <img class="frame-overlay" src="assets/frame-polaroid.png" alt=""/>
+          <img class="frame-photo" src="../assets/images/team/harshita.png" alt="Harshita Yadav" style="top:11.33%; left:4.34%; width:90.17%; height:68.9%; object-position:center 12%;"/>
+          <img class="frame-overlay" src="../assets/images/frames/frame-polaroid.png" alt=""/>
         </div>
       </div>
       <div class="founder-bubble-wrap sr-left d1">
         <div class="founder-bubble on-dark">
-          <img src="assets/bubble-red.png" alt=""/>
+          <img src="../assets/images/bubbles/bubble-red.png" alt=""/>
           <div class="founder-bubble-text">
             <p>"Growing up, I had access to so many competitions and opportunities that shaped who I am today. Looking back, I hope the privilege I had to access such opportunities can be extended to children who have so much potential of their own.</p>
             <p>That's why I believe we should use our advantages to help balance this educational disparity, and why this platform is my way of putting in all the effort I can to make this reality possible!"</p>
@@ -345,7 +353,7 @@
     <p>To aid our nonprofit, we would greatly appreciate your support by following our page and staying in the loop on upcoming workshops.</p>
     <div class="support-buttons">
       <a href="https://www.instagram.com/stemina_edu/" target="_blank" rel="noopener" class="btn-primary">Follow on Instagram</a>
-      <a href="community.html" class="btn-outline-light">Join the Community</a>
+      <a href="../community/" class="btn-outline-light">Join the Community</a>
     </div>
   </div>
 </section>
@@ -364,6 +372,114 @@
     entries.forEach(e => { e.target.classList.toggle('visible', e.isIntersecting); });
   }, { threshold: 0.1 });
   document.querySelectorAll('.sr').forEach(el => obs.observe(el));
+
+  // Wrap each founder's text to the oval body of their bubble (not the
+  // image's rectangular frame, which includes the tail and empty corners),
+  // then pick the largest font size that still fits inside that oval.
+  // The oval is given as fractions of the bubble image: centre (cx, cy)
+  // and radii (rx, ry), kept a little inside the painted edge. n > 2 makes
+  // it a rounded-rectangle-ish "superellipse", closer to the painted blob.
+  const BUBBLE_OVAL = { cx: 0.505, cy: 0.455, rx: 0.415, ry: 0.375, n: 2.5 };          // tail bottom-left
+  const BUBBLE_OVAL_REVERSE = { cx: 0.495, cy: 0.455, rx: 0.415, ry: 0.375, n: 2.5 };  // tail bottom-right
+  const MIN_FONT = 12, MAX_FONT = 20; // px
+  const bubbles = Array.from(document.querySelectorAll('.founder-bubble'));
+
+  // Floats whose shape-outside traces the oval's left/right edges, so lines
+  // of text are only as wide as the oval at that height.
+  bubbles.forEach(bubble => {
+    const text = bubble.querySelector('.founder-bubble-text');
+    const spacer = document.createElement('div');
+    spacer.className = 'bubble-spacer';
+    ['left', 'right'].forEach(side => {
+      const f = document.createElement('div');
+      f.className = 'bubble-shape ' + side;
+      text.prepend(f);
+    });
+    text.querySelector('.bubble-shape.left').after(spacer); // after both floats, so it doesn't push either one down
+  });
+
+  // Sets the bubble to height H and shapes the text to its oval; returns the
+  // lowest y (px) the text may reach.
+  function shapeBubble(bubble, H) {
+    const o = bubble.closest('.founder-row').classList.contains('reverse') ? BUBBLE_OVAL_REVERSE : BUBBLE_OVAL;
+    const W = bubble.clientWidth;
+    bubble.style.height = H + 'px';
+    const cx = o.cx * W, cy = o.cy * H, rx = o.rx * W, ry = o.ry * H;
+    // Skip the oval's narrow tips (under 55% of full width) so no line is
+    // left holding a single word
+    const t = (1 - 0.55 ** o.n) ** (1 / o.n);
+    const top = cy - ry * t, bottom = cy + ry * t, steps = 40;
+    const left = [`0 0`, `${cx}px 0`, `${cx}px ${top}px`];
+    const right = [`${W - cx}px 0`, `0 0`, `0 ${top}px`];
+    for (let i = 0; i <= steps; i++) {
+      const y = top + (bottom - top) * i / steps;
+      const dx = rx * Math.max(0, 1 - Math.abs((y - cy) / ry) ** o.n) ** (1 / o.n);
+      left.push(`${cx - dx}px ${y}px`);
+      right.push(`${dx}px ${y}px`);
+    }
+    left.push(`${cx}px ${bottom}px`, `${cx}px ${H}px`, `0 ${H}px`);
+    right.push(`0 ${bottom}px`, `0 ${H}px`, `${W - cx}px ${H}px`);
+    const [l, r] = [bubble.querySelector('.bubble-shape.left'), bubble.querySelector('.bubble-shape.right')];
+    l.style.width = cx + 'px';
+    r.style.width = (W - cx) + 'px';
+    l.style.shapeOutside = `polygon(${left.join(',')})`;
+    r.style.shapeOutside = `polygon(${right.join(',')})`;
+    return bottom;
+  }
+
+  function fitBubbleText() {
+    bubbles.forEach(bubble => {
+      const text = bubble.querySelector('.founder-bubble-text');
+      const spacer = text.querySelector('.bubble-spacer');
+      const last = text.querySelector('p:last-of-type');
+      const natural = bubble.clientWidth * 583 / 700;
+      const textBottom = () => last.offsetTop + last.offsetHeight;
+      let bottom = shapeBubble(bubble, natural);
+      const fits = size => { text.style.fontSize = size + 'px'; return textBottom() <= bottom; };
+      spacer.style.height = '0px';
+      if (fits(MIN_FONT)) {
+        // Binary search the largest font size (px) that fits
+        let lo = MIN_FONT, hi = MAX_FONT;
+        if (fits(hi)) lo = hi;
+        while (hi - lo > 0.1) {
+          const mid = (lo + hi) / 2;
+          if (fits(mid)) lo = mid; else hi = mid;
+        }
+        fits(lo);
+      } else {
+        // Too small a screen to fit readable text: keep the minimum size and
+        // stretch the bubble taller just enough to hold it
+        let lo = natural, hi = natural * 3;
+        while (hi - lo > 1) {
+          const mid = (lo + hi) / 2;
+          bottom = shapeBubble(bubble, mid);
+          if (fits(MIN_FONT)) hi = mid; else lo = mid;
+        }
+        bottom = shapeBubble(bubble, hi);
+        fits(MIN_FONT);
+      }
+      // Nudge the text down to centre it vertically in the oval, if it still fits
+      // (lines reflow as they move, so back off until it fits). The first line
+      // already sits below the spacer where the oval is wide enough, so the
+      // spacer only starts moving text once it's taller than that offset.
+      const range = document.createRange();
+      range.selectNodeContents(text.querySelector('p'));
+      const firstTop = range.getClientRects()[0].top - text.getBoundingClientRect().top;
+      let gap = (bottom - textBottom()) / 2;
+      for (; gap > 1; gap *= 0.75) {
+        spacer.style.height = (firstTop + gap) + 'px';
+        if (textBottom() <= bottom) break;
+      }
+      if (gap <= 1) spacer.style.height = '0px';
+    });
+  }
+  fitBubbleText();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitBubbleText);
+  let fitTimer;
+  window.addEventListener('resize', () => {
+    clearTimeout(fitTimer);
+    fitTimer = setTimeout(fitBubbleText, 100);
+  });
 
   // Founder photos/bubbles slide in from the side and fade — driven
   // continuously by scroll position (like the article header cover photo),
